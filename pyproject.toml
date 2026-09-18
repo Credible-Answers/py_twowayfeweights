@@ -1,0 +1,15 @@
+[project]
+name = "twowayfeweights"
+version = "0.1.0"
+description = "Python port of the twowayfeweights R/Stata package"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
