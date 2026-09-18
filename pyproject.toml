@@ -5,6 +5,7 @@ description = "Python port of the twowayfeweights R/Stata package"
 requires-python = ">=3.9"
 dependencies = [
     "pandas",
+    "pyfixest",
 ]
 
 [build-system]
