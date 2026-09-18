@@ -63,3 +63,63 @@ def rename_var(
         out = pd.concat([out, rw_df], axis=1)
 
     return out
+
+def transform(
+    df: pd.DataFrame,
+    controls: list[str] | None = None,
+    weights: pd.Series | None = None,
+    treatments: list[str] | None = None,
+) -> pd.DataFrame:
+    """Normalise D, les contrôles et les autres traitements ; ajoute les
+    poids et les colonnes de période factorisées.
+    Traduction de twowayfeweights_transform.R."""
+    controls = controls or []
+    treatments = treatments or []
+
+    _, df = normalize_var(df, "D")
+
+    for control in controls:
+        _, df = normalize_var(df, control)
+
+    for treatment in treatments:
+        _, df = normalize_var(df, treatment)
+
+    df = df.copy()
+    if weights is None:
+        df["weights"] = 1
+    else:
+        df["weights"] = weights
+
+    df["Tfactor"] = df["T"].astype("category")
+    df["TFactorNum"] = df["Tfactor"].cat.codes + 1
+
+    return df
+
+def filter_data(
+    df: pd.DataFrame,
+    cmd_type: str,
+    controls: list[str] | None = None,
+    treatments: list[str] | None = None,
+) -> pd.DataFrame:
+    """Supprime les lignes avec des valeurs manquantes, selon le type
+    d'estimation choisi.
+    Traduction de twowayfeweights_filter.R."""
+    controls = controls or []
+    treatments = treatments or []
+
+    if cmd_type != "fdTR":
+        cols = ["Y", "G", "T", "D"] + controls + treatments
+        df = df[df[cols].notna().all(axis=1)]
+    else:
+        tag1_ok = df[["D", "T", "Y"]].notna().all(axis=1)
+        tag2_ok = df["D0"].notna()
+        keep = tag1_ok | tag2_ok
+        df = df[keep]
+        tag1_ok = tag1_ok[keep]
+
+        if controls:
+            tag3_ok = df[controls].notna().all(axis=1)
+            df = df[(~tag1_ok) | tag3_ok]
+
+    return df
+
