@@ -79,4 +79,32 @@ def finalize_feTR(df: pd.DataFrame, W: pd.Series, nat_weight: pd.Series) -> pd.D
     out = out.groupby(["G", "Tfactor"], as_index=False, observed=True).first()
     return out
 
+def calculate_feTR(df: pd.DataFrame, controls: list[str] | None = None) -> tuple[pd.DataFrame, float]:
+    """Orchestre le calcul complet des poids pour le cas type='feTR'.
+    Assemble compute_P_gt, compute_nat_weight, fit_denom_regression,
+    fit_beta_regression, compute_W_feTR et finalize_feTR, dans le même
+    ordre que la branche feTR de twowayfeweights_calculate.R.
+
+    Returns
+    -------
+    result : pd.DataFrame
+        Une ligne par cellule (G, Tfactor), avec les colonnes W, nat_weight,
+        weight_result.
+    beta : float
+        Le coefficient sur D dans la régression Y ~ D + controls | G + Tfactor.
+    """
+    P_gt = compute_P_gt(df)
+    nat_weight, mean_D = compute_nat_weight(df, "D", P_gt)
+
+    eps_1 = fit_denom_regression(df, controls)
+    beta = fit_beta_regression(df, controls)
+
+    W = compute_W_feTR(df, eps_1, "D", mean_D)
+
+    result = finalize_feTR(df, W, nat_weight)
+
+    return result, beta
+
+
+
 
