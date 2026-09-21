@@ -163,4 +163,34 @@ def finalize_feS(
 
     return out
 
+def calculate_feS(df: pd.DataFrame, controls: list[str] | None = None) -> tuple[pd.DataFrame, float]:
+    """Orchestre le calcul complet des poids pour le cas type='feS'.
+    Assemble compute_P_gt, fit_denom_regression, fit_beta_regression,
+    compute_E_eps_1_g_ge, apply_feS_delta et finalize_feS, dans le même
+    ordre que la branche feS de twowayfeweights_calculate.R.
+
+    IMPORTANT : df doit déjà être trié par (G, TFactorNum) avant l'appel.
+
+    Returns
+    -------
+    result : pd.DataFrame
+        Une ligne par cellule switcher, avec les colonnes W, nat_weight,
+        weight_result.
+    beta : float
+        Le coefficient sur D dans la régression Y ~ D + controls | G + Tfactor.
+    """
+    P_gt = compute_P_gt(df)
+
+    eps_1 = fit_denom_regression(df, controls)
+    beta = fit_beta_regression(df, controls)
+
+    E_eps_1_g_ge = compute_E_eps_1_g_ge(df, eps_1)
+
+    switchers = apply_feS_delta(df, P_gt)
+    E_eps_1_g_ge_aligned = E_eps_1_g_ge.loc[switchers.index]
+    P_gt_aligned = P_gt.loc[switchers.index]
+
+    result = finalize_feS(switchers, E_eps_1_g_ge_aligned, P_gt_aligned)
+
+    return result, beta
 
