@@ -7,6 +7,9 @@ import pandas as pd
 def summarize_weights(weight: pd.Series) -> dict:
     """Compte les poids positifs/négatifs et leurs sommes.
     Traduction de twowayfeweights_summarize_weights (utils.R)."""
+    limit_sensitivity = 1e-10
+    weight = weight.where(weight.isna() | (weight.abs() >= limit_sensitivity), 0.0)
+
     ok = weight.notna()
     weight_plus = weight[ok & (weight > 0)]
     weight_minus = weight[ok & (weight < 0)]
@@ -18,6 +21,7 @@ def summarize_weights(weight: pd.Series) -> dict:
         "sum_plus": weight_plus.sum(),
         "sum_minus": weight_minus.sum(),
     }
+
 
 def compute_sensibility(W: pd.Series, nat_weight: pd.Series, beta: float) -> float:
     """Première mesure de robustesse (Corollaire 1, point (i)) : le minimum
@@ -75,3 +79,31 @@ def compute_sensibility2(
     total_indicator = dat["indicator"].sum()
     idx = int(N - total_indicator - 1)  # -1 pour l'indexation 0-based de Python
     return dat["sens_measure2"].iloc[idx]
+
+import pyfixest as pf
+
+
+def test_random_weights(df: pd.DataFrame, random_weight_cols: list[str]) -> pd.DataFrame:
+    """Teste la corrélation entre chaque variable de random_weight_cols et
+    les poids W, pondéré par nat_weight, erreurs-types clusterisées par G.
+    Traduction de twowayfeweights_test_random_weights (utils.R).
+
+    df doit contenir les colonnes W, nat_weight, G, et chaque colonne de
+    random_weight_cols (déjà renommées en RW_*)."""
+    mask = np.isfinite(df["W"]) & (df["nat_weight"] != 0)
+    df_filtered = df[mask]
+
+    rows = []
+    for v in random_weight_cols:
+        formula = f"{v} ~ W"
+        fit = pf.feols(formula, data=df_filtered, weights="nat_weight", vcov={"CRV1": "G"})
+        coef = fit.coef()["W"]
+        se = fit.se()["W"]
+        r2 = fit._r2
+        correlation = np.sqrt(r2) if coef > 0 else -np.sqrt(r2)
+        rows.append({
+            "variable": v, "Coef": coef, "SE": se,
+            "t-stat": coef / se, "Correlation": correlation,
+        })
+
+    return pd.DataFrame(rows).set_index("variable")

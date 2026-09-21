@@ -9,6 +9,12 @@ from twowayfeweights._calculate import (
     calculate_fdTR,
     calculate_fdS,
 )
+from twowayfeweights._result import (
+    summarize_weights,
+    compute_sensibility,
+    compute_sensibility2,
+    test_random_weights as run_test_random_weights,
+)
 
 _CALCULATORS = {
     "feTR": calculate_feTR,
@@ -17,8 +23,6 @@ _CALCULATORS = {
     "fdS": calculate_fdS,
 }
 
-# Types qui ont besoin d'être triés par (G, TFactorNum) avant le calcul,
-# car ils comparent chaque ligne à sa voisine du même groupe.
 _NEEDS_SORT = {"feS", "fdTR"}
 
 
@@ -47,26 +51,36 @@ def twowayfeweights(
     ----------
     data : pd.DataFrame
         Le jeu de données.
-    Y : str
-        Nom de la colonne de la variable dépendante.
-    G : str
-        Nom de la colonne identifiant les groupes.
-    T : str
-        Nom de la colonne identifiant les périodes.
-    D : str
-        Nom de la colonne du traitement.
+    Y, G, T, D : str
+        Noms des colonnes de la variable dépendante, du groupe, de la
+        période, et du traitement.
     type : str
         Un parmi {"feTR", "feS", "fdTR", "fdS"}.
     D0 : str, optional
         Requis si type="fdTR". Niveau initial du traitement.
+    summary_measures : bool
+        Si True, ajoute au résultat les mesures de robustesse (Corollaire 1).
+    controls : list[str], optional
+        Variables de contrôle.
+    weights : str, optional
+        Nom d'une colonne de poids de régression.
+    other_treatments : list[str], optional
+        Autres traitements (feTR uniquement). Non encore implémenté.
+    test_random_weights : list[str], optional
+        Variables dont on teste la corrélation avec les poids.
+    path : str, optional
+        Chemin où sauvegarder les poids en CSV.
 
     Returns
     -------
     dict
-        Un dictionnaire contenant :
         - "weights" : pd.DataFrame avec une ligne par cellule (G, T) et son
           poids (colonne "weight").
         - "beta" : le coefficient TWFE estimé.
+        - "summary" : dict (nr_plus, nr_minus, sum_plus, sum_minus,
+          sensibility, sensibility2), présent si summary_measures=True.
+        - "random_weights_test" : pd.DataFrame, présent si
+          test_random_weights est fourni.
     """
     if type not in _CALCULATORS:
         raise ValueError(f"type doit être un de {list(_CALCULATORS)}, reçu '{type}'.")
@@ -74,28 +88,27 @@ def twowayfeweights(
     if type == "fdTR" and D0 is None:
         raise ValueError("Le paramètre D0 est requis quand type='fdTR'.")
 
-    if other_treatments and type != "feTR":
-        raise ValueError("other_treatments ne peut être utilisé qu'avec type='feTR'.")
+    if other_treatments:
+        raise NotImplementedError("other_treatments n'est pas encore implémenté.")
 
     controls = controls or []
-    other_treatments = other_treatments or []
     test_random_weights = test_random_weights or []
 
     weights_col = data[weights] if weights is not None else None
 
     renamed = rename_var(
         data, Y=Y, G=G, T=T, D=D, D0=D0,
-        controls=controls, treatments=other_treatments,
+        controls=controls, treatments=[],
         random_weights=test_random_weights,
     )
     transformed = transform(
         renamed, controls=[f"ctrl_{c}" for c in controls],
-        weights=weights_col, treatments=[f"OT_{t}" for t in other_treatments],
+        weights=weights_col, treatments=[],
     )
     filtered = filter_data(
         transformed, cmd_type=type,
         controls=[f"ctrl_{c}" for c in controls],
-        treatments=[f"OT_{t}" for t in other_treatments],
+        treatments=[],
     )
 
     if type in _NEEDS_SORT:
@@ -106,4 +119,24 @@ def twowayfeweights(
 
     weights_df = result[["G", "T", "weight_result"]].rename(columns={"weight_result": "weight"})
 
-    return {"weights": weights_df, "beta": beta}
+    output = {"weights": weights_df, "beta": beta}
+
+    if summary_measures:
+        summary = summarize_weights(result["weight_result"])
+        summary["sensibility"] = compute_sensibility(result["W"], result["nat_weight"], beta)
+        summary["sensibility2"] = compute_sensibility2(
+            result["G"], result["T"], result["W"], result["nat_weight"],
+            result["weight_result"], beta,
+        )
+        output["summary"] = summary
+
+    if test_random_weights:
+        rw_cols = [f"RW_{v}" for v in test_random_weights]
+        for c in rw_cols:
+            result[c] = renamed.loc[result.index, c]
+        output["random_weights_test"] = run_test_random_weights(result, rw_cols)
+
+    if path is not None:
+        weights_df.to_csv(path, index=False)
+
+    return output
