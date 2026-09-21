@@ -3,7 +3,23 @@ from __future__ import annotations
 import pandas as pd
 
 from twowayfeweights._prepare import rename_var, transform, filter_data
-from twowayfeweights._calculate import calculate_feTR
+from twowayfeweights._calculate import (
+    calculate_feTR,
+    calculate_feS,
+    calculate_fdTR,
+    calculate_fdS,
+)
+
+_CALCULATORS = {
+    "feTR": calculate_feTR,
+    "feS": calculate_feS,
+    "fdTR": calculate_fdTR,
+    "fdS": calculate_fdS,
+}
+
+# Types qui ont besoin d'être triés par (G, TFactorNum) avant le calcul,
+# car ils comparent chaque ligne à sa voisine du même groupe.
+_NEEDS_SORT = {"feS", "fdTR"}
 
 
 def twowayfeweights(
@@ -40,8 +56,9 @@ def twowayfeweights(
     D : str
         Nom de la colonne du traitement.
     type : str
-        Un parmi {"feTR", "feS", "fdTR", "fdS"}. Seul "feTR" est
-        implémenté pour l'instant.
+        Un parmi {"feTR", "feS", "fdTR", "fdS"}.
+    D0 : str, optional
+        Requis si type="fdTR". Niveau initial du traitement.
 
     Returns
     -------
@@ -51,10 +68,14 @@ def twowayfeweights(
           poids (colonne "weight").
         - "beta" : le coefficient TWFE estimé.
     """
-    if type != "feTR":
-        raise NotImplementedError(
-            f"type='{type}' n'est pas encore implémenté. Seul 'feTR' l'est pour l'instant."
-        )
+    if type not in _CALCULATORS:
+        raise ValueError(f"type doit être un de {list(_CALCULATORS)}, reçu '{type}'.")
+
+    if type == "fdTR" and D0 is None:
+        raise ValueError("Le paramètre D0 est requis quand type='fdTR'.")
+
+    if other_treatments and type != "feTR":
+        raise ValueError("other_treatments ne peut être utilisé qu'avec type='feTR'.")
 
     controls = controls or []
     other_treatments = other_treatments or []
@@ -77,7 +98,11 @@ def twowayfeweights(
         treatments=[f"OT_{t}" for t in other_treatments],
     )
 
-    result, beta = calculate_feTR(filtered, controls=[f"ctrl_{c}" for c in controls])
+    if type in _NEEDS_SORT:
+        filtered = filtered.sort_values(["G", "TFactorNum"]).reset_index(drop=True)
+
+    calculator = _CALCULATORS[type]
+    result, beta = calculator(filtered, controls=[f"ctrl_{c}" for c in controls])
 
     weights_df = result[["G", "T", "weight_result"]].rename(columns={"weight_result": "weight"})
 
