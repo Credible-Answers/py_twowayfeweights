@@ -298,3 +298,23 @@ def finalize_fdS(df: pd.DataFrame, eps_2: pd.Series, P_gt: pd.Series) -> pd.Data
     out["weight_result"] = W * nat_weight
 
     return out
+
+def calculate_fdS(df: pd.DataFrame, controls: list[str] | None = None) -> tuple[pd.DataFrame, float]:
+    """Orchestre le calcul complet des poids pour le cas type='fdS'.
+    Assemble compute_P_gt, fit_denom_regression_fdS, fit_beta_regression
+    (fes='Tfactor', restreint aux weights != 0), et finalize_fdS.
+
+    Returns
+    -------
+    result : pd.DataFrame
+    beta : float
+    """
+    P_gt = compute_P_gt(df)
+    eps_2 = fit_denom_regression_fdS(df, controls)
+
+    sub = df[df["weights"] != 0]
+    beta = fit_beta_regression(sub, controls, fes="Tfactor")
+
+    result = finalize_fdS(df, eps_2, P_gt)
+
+    return result, beta
