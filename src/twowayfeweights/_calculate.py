@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import numpy as np
 
 
 def compute_P_gt(df: pd.DataFrame) -> pd.Series:
@@ -39,14 +40,22 @@ def fit_denom_regression(
     df: pd.DataFrame, controls: list[str] | None = None, fes: str = "G + Tfactor"
 ) -> pd.Series:
     """Régresse D sur les effets fixes indiqués et d'éventuels contrôles ;
-    renvoie les résidus, alignés sur l'index de df.
+    renvoie les résidus, alignés sur l'index COMPLET de df (NaN pour les
+    lignes exclues de la régression à cause de valeurs manquantes).
     Traduction de la régression 'denom.lm' dans twowayfeweights_calculate.R.
     fes="G + Tfactor" pour feTR/feS (type_fe), fes="Tfactor" pour fdTR/fdS."""
     controls = controls or []
     rhs = " + ".join(controls) if controls else "1"
     formula = f"D ~ {rhs} | {fes}"
     fit = pf.feols(formula, data=df, weights="weights")
-    return pd.Series(fit.resid(), index=df.index)
+
+    fe_cols = fes.split(" + ")
+    needed_cols = ["D"] + controls + fe_cols
+    mask = df[needed_cols].notna().all(axis=1)
+
+    resid = pd.Series(np.nan, index=df.index)
+    resid[mask] = fit.resid()
+    return resid
 
 
 def fit_beta_regression(
@@ -199,3 +208,12 @@ def calculate_feS(df: pd.DataFrame, controls: list[str] | None = None) -> tuple[
 
     return result, beta
 
+def fit_denom_regression_fdTR(
+    df: pd.DataFrame, controls: list[str] | None = None
+) -> pd.Series:
+    """Comme fit_denom_regression, mais avec fes='Tfactor' (pas de G) et
+    les résidus NA remplacés par 0.0, spécifique au cas fdTR.
+    Traduction de la branche fdTR de twowayfeweights_calculate.R
+    (eps_vals[is.na(eps_vals)] <- 0.0)."""
+    eps_2 = fit_denom_regression(df, controls, fes="Tfactor")
+    return eps_2.fillna(0.0)
