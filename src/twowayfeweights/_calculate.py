@@ -35,24 +35,29 @@ def compute_nat_weight(df: pd.DataFrame, D_col: str, P_gt: pd.Series) -> tuple[p
 import pyfixest as pf
 
 
-def fit_denom_regression(df: pd.DataFrame, controls: list[str] | None = None) -> pd.Series:
-    """Régresse D sur les effets fixes (G, Tfactor) et d'éventuels contrôles ;
-    renvoie les résidus (eps_1), alignés sur l'index de df.
-    Traduction de la régression 'denom.lm' pour le cas type_fe (feTR/feS)
-    dans twowayfeweights_calculate.R."""
+def fit_denom_regression(
+    df: pd.DataFrame, controls: list[str] | None = None, fes: str = "G + Tfactor"
+) -> pd.Series:
+    """Régresse D sur les effets fixes indiqués et d'éventuels contrôles ;
+    renvoie les résidus, alignés sur l'index de df.
+    Traduction de la régression 'denom.lm' dans twowayfeweights_calculate.R.
+    fes="G + Tfactor" pour feTR/feS (type_fe), fes="Tfactor" pour fdTR/fdS."""
     controls = controls or []
     rhs = " + ".join(controls) if controls else "1"
-    formula = f"D ~ {rhs} | G + Tfactor"
+    formula = f"D ~ {rhs} | {fes}"
     fit = pf.feols(formula, data=df, weights="weights")
     return pd.Series(fit.resid(), index=df.index)
 
-def fit_beta_regression(df: pd.DataFrame, controls: list[str] | None = None) -> float:
-    """Régresse Y sur D, les effets fixes (G, Tfactor) et d'éventuels
+
+def fit_beta_regression(
+    df: pd.DataFrame, controls: list[str] | None = None, fes: str = "G + Tfactor"
+) -> float:
+    """Régresse Y sur D, les effets fixes indiqués et d'éventuels
     contrôles ; renvoie le coefficient sur D (beta).
     Traduction de la régression 'beta.lm' dans twowayfeweights_calculate.R."""
     controls = controls or []
     rhs = " + ".join(["D"] + controls)
-    formula = f"Y ~ {rhs} | G + Tfactor"
+    formula = f"Y ~ {rhs} | {fes}"
     fit = pf.feols(formula, data=df, weights="weights")
     return fit.coef()["D"]
 
