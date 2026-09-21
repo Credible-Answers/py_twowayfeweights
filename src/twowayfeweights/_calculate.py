@@ -217,3 +217,49 @@ def fit_denom_regression_fdTR(
     (eps_vals[is.na(eps_vals)] <- 0.0)."""
     eps_2 = fit_denom_regression(df, controls, fes="Tfactor")
     return eps_2.fillna(0.0)
+
+from twowayfeweights._kernels import fdtr_wtilde2
+
+
+def finalize_fdTR(
+    df: pd.DataFrame, eps_2: pd.Series, P_gt: pd.Series, nat_weight: pd.Series, mean_D: float
+) -> pd.DataFrame:
+    """Calcule w_tilde_2, le normalise en W via une moyenne pondérée par
+    P_gt (pas weights !), puis calcule weight_result = W * nat_weight.
+    Traduction de la fin de la branche fdTR de twowayfeweights_calculate.R.
+
+    IMPORTANT : df doit déjà être trié par (G, TFactorNum)."""
+    out = df.copy()
+    w_tilde_2 = fdtr_wtilde2(out["G"], out["TFactorNum"], eps_2, P_gt)
+    w_tilde_2_E_D_gt = w_tilde_2 * out["D0"]
+
+    denom_W = weighted_mean(w_tilde_2_E_D_gt, P_gt)
+    out["W"] = w_tilde_2 * mean_D / denom_W
+    out["nat_weight"] = nat_weight
+    out["weight_result"] = out["W"] * out["nat_weight"]
+
+    return out
+
+def calculate_fdTR(df: pd.DataFrame, controls: list[str] | None = None) -> tuple[pd.DataFrame, float]:
+    """Orchestre le calcul complet des poids pour le cas type='fdTR'.
+    Assemble compute_P_gt, compute_nat_weight (avec D0), fit_denom_regression_fdTR,
+    fit_beta_regression (fes='Tfactor'), et finalize_fdTR, dans le même
+    ordre que la branche fdTR de twowayfeweights_calculate.R.
+
+    IMPORTANT : df doit déjà être trié par (G, TFactorNum) avant l'appel.
+
+    Returns
+    -------
+    result : pd.DataFrame
+    beta : float
+    """
+    P_gt = compute_P_gt(df)
+    nat_weight, mean_D = compute_nat_weight(df, "D0", P_gt)
+
+    eps_2 = fit_denom_regression_fdTR(df, controls)
+    beta = fit_beta_regression(df, controls, fes="Tfactor")
+
+    result = finalize_fdTR(df, eps_2, P_gt, nat_weight, mean_D)
+
+    return result, beta
+
