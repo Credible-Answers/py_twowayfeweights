@@ -105,6 +105,44 @@ def calculate_feTR(df: pd.DataFrame, controls: list[str] | None = None) -> tuple
 
     return result, beta
 
+from twowayfeweights._kernels import rev_cumsum_by_group, feS_delta
+
+
+def compute_E_eps_1_g_ge(df: pd.DataFrame, eps_1: pd.Series) -> pd.Series:
+    """Calcule, pour chaque ligne, la moyenne pondérée des résidus eps_1
+    à partir de cette période et pour toutes celles qui suivent, dans le
+    même groupe (d'où 'g_ge' = 'groupe, greater or equal').
+    Traduction de la section feS de twowayfeweights_calculate.R
+    (E_eps_1_g_ge_aux, weights_aux, E_eps_1_g_ge).
+
+    IMPORTANT : df doit déjà être trié par (G, Tfactor)."""
+    eps_w = eps_1 * df["weights"]
+    E_eps_1_g_ge_aux = rev_cumsum_by_group(df["G"], eps_w)
+    weights_aux = rev_cumsum_by_group(df["G"], df["weights"])
+    return E_eps_1_g_ge_aux / weights_aux
+
+def apply_feS_delta(df: pd.DataFrame, P_gt: pd.Series) -> pd.DataFrame:
+    """Identifie les cellules 'switchers' (où D change par rapport à la
+    période précédente dans le même groupe), ne garde que ces lignes, et
+    normalise nat_weight pour qu'il somme à 1 sur les switchers gardés.
+    Traduction de la section feS de twowayfeweights_calculate.R
+    (cpp_feS_delta, filtre keep, P_S).
+
+    IMPORTANT : df doit déjà être trié par (G, TFactorNum)."""
+    delta_res = feS_delta(df["G"], df["TFactorNum"], df["D"], P_gt)
+
+    out = df.copy()
+    out["delta_D"] = delta_res["delta_D"]
+    out["s_gt"] = delta_res["s_gt"]
+    out["abs_delta_D"] = delta_res["abs_delta_D"]
+    out["nat_weight"] = delta_res["nat_weight"]
+
+    out = out[delta_res["keep"].values]
+
+    P_S = out["nat_weight"].sum()
+    out["nat_weight"] = out["nat_weight"] / P_S
+
+    return out
 
 
 
