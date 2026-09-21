@@ -144,5 +144,23 @@ def apply_feS_delta(df: pd.DataFrame, P_gt: pd.Series) -> pd.DataFrame:
 
     return out
 
+def finalize_feS(
+    df: pd.DataFrame, E_eps_1_g_ge: pd.Series, P_gt: pd.Series
+) -> pd.DataFrame:
+    """Calcule om_tilde_1, le normalise en W via une moyenne pondérée par
+    nat_weight, puis calcule weight_result = W * nat_weight.
+    Traduction de la fin de la branche feS de twowayfeweights_calculate.R.
+
+    IMPORTANT : df doit déjà être passé par apply_feS_delta (donc contenir
+    s_gt et nat_weight, déjà filtré sur les switchers), et E_eps_1_g_ge /
+    P_gt doivent être alignés sur le même index que df (déjà filtrés pareil)."""
+    out = df.copy()
+    out["om_tilde_1"] = out["s_gt"] * E_eps_1_g_ge / P_gt
+
+    denom_W = weighted_mean(out["om_tilde_1"], out["nat_weight"])
+    out["W"] = out["om_tilde_1"] / denom_W
+    out["weight_result"] = out["W"] * out["nat_weight"]
+
+    return out
 
 
