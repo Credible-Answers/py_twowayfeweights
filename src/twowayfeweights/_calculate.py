@@ -263,3 +263,38 @@ def calculate_fdTR(df: pd.DataFrame, controls: list[str] | None = None) -> tuple
 
     return result, beta
 
+def fit_denom_regression_fdS(df: pd.DataFrame, controls: list[str] | None = None) -> pd.Series:
+    """Comme fit_denom_regression, mais restreint aux lignes où weights != 0,
+    puis réaligné sur l'index complet de df (NaN ailleurs).
+    Traduction de la branche fdS de twowayfeweights_calculate.R
+    (sub_idx <- dt$weights != 0)."""
+    sub = df[df["weights"] != 0]
+    eps_sub = fit_denom_regression(sub, controls, fes="Tfactor")
+
+    eps_2 = pd.Series(np.nan, index=df.index)
+    eps_2.loc[eps_sub.index] = eps_sub
+    return eps_2
+
+
+def finalize_fdS(df: pd.DataFrame, eps_2: pd.Series, P_gt: pd.Series) -> pd.DataFrame:
+    """Calcule s_gt, abs_delta_D, nat_weight (normalisé), puis W et
+    weight_result.
+    Traduction de la fin de la branche fdS de twowayfeweights_calculate.R."""
+    out = df.copy()
+
+    s_gt = np.sign(out["D"])
+    abs_delta_D = out["D"].abs()
+    nat_weight = P_gt * abs_delta_D
+    P_S = nat_weight.sum()
+    nat_weight = nat_weight / P_S
+
+    W = s_gt * eps_2
+    denom_W = weighted_mean(W, nat_weight)
+    W = W / denom_W
+
+    out["s_gt"] = s_gt
+    out["nat_weight"] = nat_weight
+    out["W"] = W
+    out["weight_result"] = W * nat_weight
+
+    return out
