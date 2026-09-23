@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+tests/reference/work/
+*.log
+!tests/fixtures/stata/stata.log
+.DS_Store
+.Rhistory
