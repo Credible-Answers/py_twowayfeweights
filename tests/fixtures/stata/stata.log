@@ -1,0 +1,2180 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\eunic\OneDrive\Documents\GitHub\py_twowayfeweights\tests\
+> reference\work\stata_out/stata.log
+  log type:  text
+ opened on:  23 Sep 2026, 08:26:57
+
+. file open fh using "stata_out/results.csv", write replace
+
+. file write fh "name,beta,nr_plus,nr_minus,sum_plus,sum_minus,tot_cells,sensib
+> ility,sensibility2" _n
+
+. file open fo using "stata_out/other_treatments.csv", write replace
+
+. file write fo "name,j,nr_plus,nr_minus,sum_plus,sum_minus,tot_cells" _n
+
+. file open fr using "stata_out/random_weights.csv", write replace
+
+. file write fr "name,var,Coef,SE,tstat,Correlation" _n
+
+. 
+. * ---- wp_feTR
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_feTR"
+CASE: wp_feTR
+
+. cap noi twowayfeweights lwage nr year union, type(feTR) summary_measures path
+> ("stata_out/wp_feTR_w.dta") test_random_weights(educ)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.1066, estimates a weighted sum of 967 ATT
+> s. 
+820 ATTs receive a positive weight, and 147 receive a negative weight.
+1016 (g,t) cells receive the treatment, but the ATTs of 49 cells receive a weig
+> ht equal to zero.
+------------------------------------------------
+Treat. var: union       # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        820         1.0105      
+Negative weights        147         -0.0105     
+------------------------------------------------
+Total                   967         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.1066
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0969
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    3.1759
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+educ   -.13445527    .07136021    -1.884177   -.11825874
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_feTR," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %
+> 24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) "
+> ," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _
+> n
+.   file write fr "wp_feTR,educ," %24.17g (el(e(randomweightstest1),1,1)) "," %
+> 24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),
+> 1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "wp_feTR,ERROR" _n
+. }
+
+. 
+. * ---- wp_feTR_ctrl_w
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_feTR_ctrl_w"
+CASE: wp_feTR_ctrl_w
+
+. cap noi twowayfeweights lwage nr year union, type(feTR) summary_measures path
+> ("stata_out/wp_feTR_ctrl_w_w.dta") controls(hours married) weight(wt) test_ra
+> ndom_weights(educ exper)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.0979, estimates a weighted sum of 1015 AT
+> Ts. 
+831 ATTs receive a positive weight, and 184 receive a negative weight.
+1016 (g,t) cells receive the treatment, but the ATTs of 1 cells receive a weigh
+> t equal to zero.
+------------------------------------------------
+Treat. var: union       # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        831         1.0117      
+Negative weights        184         -0.0117     
+------------------------------------------------
+Total                   1015        1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.0979
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0871
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    2.5914
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[2,4]
+              Coef           SE       t-stat  Correlation
+ educ   -.13860738    .06888104   -2.0122719   -.12589627
+exper   -.18929724     .1028961   -1.8396931   -.08125612
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_feTR_ctrl_w," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)
+> ) "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),
+> 2,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_
+> te2)) _n
+.   file write fr "wp_feTR_ctrl_w,educ," %24.17g (el(e(randomweightstest1),1,1)
+> ) "," %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweights
+> test1),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+.   file write fr "wp_feTR_ctrl_w,exper," %24.17g (el(e(randomweightstest1),2,1
+> )) "," %24.17g (el(e(randomweightstest1),2,2)) "," %24.17g (el(e(randomweight
+> stest1),2,3)) "," %24.17g (el(e(randomweightstest1),2,4)) _n
+. }
+
+. else {
+.   file write fh "wp_feTR_ctrl_w,ERROR" _n
+. }
+
+. 
+. * ---- wp_feTR_ot
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_feTR_ot"
+CASE: wp_feTR_ot
+
+. cap noi twowayfeweights lwage nr year union, type(feTR) summary_measures path
+> ("stata_out/wp_feTR_ot_w.dta") other_treatments(married) test_random_weights(
+> educ)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.1038, estimates the sum of several terms.
+
+The first term is a weighted sum of 1016 ATTs of the treatment.
+852 ATTs receive a positive weight, and 164 receive a negative weight.
+------------------------------------------------
+Treat. var: union       # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        852         1.0117      
+Negative weights        164         -0.0117     
+------------------------------------------------
+Total                   1016        1.0000      
+------------------------------------------------
+
+The next term is a weighted sum of 1914 ATTs of treatment 1 included in the oth
+> er_treatments option.
+917 ATTs receive a positive weight, and 997 receive a negative weight.
+------------------------------------------------
+Other treat.: married   # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        917         0.4828      
+Negative weights        997         -0.4828     
+------------------------------------------------
+Total                   1914        0.0000      
+------------------------------------------------
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights attached to the treatment
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+educ   -.13467696    .07124164   -1.8904248    -.1185583
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_feTR_ot," %24.17g (e(beta)) "," %24.17g (el(e(M1),1,1)) "
+> ," %24.17g (el(e(M1),2,1)) "," %24.17g (el(e(M1),1,2)) "," %24.17g (el(e(M1),
+> 2,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_
+> te2)) _n
+.   file write fo "wp_feTR_ot,1," %24.17g (el(e(M2),1,1)) "," %24.17g (el(e(M2)
+> ,2,1)) "," %24.17g (el(e(M2),1,2)) "," %24.17g (el(e(M2),2,2)) "," %24.17g (t
+> ot_cells_1) _n
+.   file write fr "wp_feTR_ot,educ," %24.17g (el(e(randomweightstest1),1,1)) ",
+> " %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest
+> 1),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "wp_feTR_ot,ERROR" _n
+. }
+
+. 
+. * ---- wp_feTR_ot_ctrl_w
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_feTR_ot_ctrl_w"
+CASE: wp_feTR_ot_ctrl_w
+
+. cap noi twowayfeweights lwage nr year union, type(feTR) summary_measures path
+> ("stata_out/wp_feTR_ot_ctrl_w_w.dta") controls(hours) weight(wt) other_treatm
+> ents(married south) test_random_weights(educ)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.0990, estimates the sum of several terms.
+
+The first term is a weighted sum of 1016 ATTs of the treatment.
+830 ATTs receive a positive weight, and 186 receive a negative weight.
+------------------------------------------------
+Treat. var: union       # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        830         1.0117      
+Negative weights        186         -0.0117     
+------------------------------------------------
+Total                   1016        1.0000      
+------------------------------------------------
+
+The next term is a weighted sum of 1914 ATTs of treatment 1 included in the oth
+> er_treatments option.
+862 ATTs receive a positive weight, and 1052 receive a negative weight.
+------------------------------------------------
+Other treat.: married   # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        862         0.4873      
+Negative weights        1052        -0.4873     
+------------------------------------------------
+Total                   1914        0.0000      
+------------------------------------------------
+
+The next term is a weighted sum of 1529 ATTs of treatment 2 included in the oth
+> er_treatments option.
+768 ATTs receive a positive weight, and 761 receive a negative weight.
+------------------------------------------------
+Other treat.: south     # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        768         0.3698      
+Negative weights        761         -0.3698     
+------------------------------------------------
+Total                   1529        0.0000      
+------------------------------------------------
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights attached to the treatment
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+educ   -.13866343    .06899447   -2.0097759   -.12594082
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_feTR_ot_ctrl_w," %24.17g (e(beta)) "," %24.17g (el(e(M1),
+> 1,1)) "," %24.17g (el(e(M1),2,1)) "," %24.17g (el(e(M1),1,2)) "," %24.17g (el
+> (e(M1),2,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e
+> (lb_se_te2)) _n
+.   file write fo "wp_feTR_ot_ctrl_w,1," %24.17g (el(e(M2),1,1)) "," %24.17g (e
+> l(e(M2),2,1)) "," %24.17g (el(e(M2),1,2)) "," %24.17g (el(e(M2),2,2)) "," %24
+> .17g (tot_cells_1) _n
+.   file write fo "wp_feTR_ot_ctrl_w,2," %24.17g (el(e(M3),1,1)) "," %24.17g (e
+> l(e(M3),2,1)) "," %24.17g (el(e(M3),1,2)) "," %24.17g (el(e(M3),2,2)) "," %24
+> .17g (tot_cells_2) _n
+.   file write fr "wp_feTR_ot_ctrl_w,educ," %24.17g (el(e(randomweightstest1),1
+> ,1)) "," %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweig
+> htstest1),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "wp_feTR_ot_ctrl_w,ERROR" _n
+. }
+
+. 
+. * ---- wp_fdTR
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_fdTR"
+CASE: wp_fdTR
+
+. cap noi twowayfeweights diff_lwage nr year diff_union union, type(fdTR) summa
+> ry_measures path("stata_out/wp_fdTR_w.dta") test_random_weights(educ)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.0601, estimates a weighted sum of 1016 AT
+> Ts. 
+611 ATTs receive a positive weight, and 405 receive a negative weight.
+------------------------------------------------
+Treat. var: diff_union  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        611         1.0476      
+Negative weights        405         -0.0476     
+------------------------------------------------
+Total                   1016        1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.0601
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0321
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:    0.5799
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+educ   -.06649017    .02893837   -2.2976473    -.0994798
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_fdTR," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %
+> 24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) "
+> ," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _
+> n
+.   file write fr "wp_fdTR,educ," %24.17g (el(e(randomweightstest1),1,1)) "," %
+> 24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),
+> 1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "wp_fdTR,ERROR" _n
+. }
+
+. 
+. * ---- wp_fdTR_ctrl_w
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_fdTR_ctrl_w"
+CASE: wp_fdTR_ctrl_w
+
+. cap noi twowayfeweights diff_lwage nr year diff_union union, type(fdTR) summa
+> ry_measures path("stata_out/wp_fdTR_ctrl_w_w.dta") controls(hours) weight(wt)
+>  test_random_weights(educ)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.0776, estimates a weighted sum of 1016 AT
+> Ts. 
+612 ATTs receive a positive weight, and 404 receive a negative weight.
+------------------------------------------------
+Treat. var: diff_union  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        612         1.0480      
+Negative weights        404         -0.0480     
+------------------------------------------------
+Total                   1016        1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.0776
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0397
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:    0.7201
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+educ   -.06724739    .02768205   -2.4292779   -.10634003
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_fdTR_ctrl_w," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)
+> ) "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),
+> 2,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_
+> te2)) _n
+.   file write fr "wp_fdTR_ctrl_w,educ," %24.17g (el(e(randomweightstest1),1,1)
+> ) "," %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweights
+> test1),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "wp_fdTR_ctrl_w,ERROR" _n
+. }
+
+. 
+. * ---- wp_feS
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_feS"
+CASE: wp_feS
+
+. cap noi twowayfeweights lwage nr year union, type(feS) summary_measures path(
+> "stata_out/wp_feS_w.dta") test_random_weights(educ)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.1066, estimates a weighted sum of 228 ATT
+> s. 
+228 ATTs receive a positive weight, and 0 receive a negative weight.
+------------------------------------------------
+Treat. var: union       # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        228         1.0000      
+Negative weights        0           0.0000      
+------------------------------------------------
+Total                   228         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.1066
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.1555
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+educ    .11004248    .14939977    .73656395    .04569714
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_feS," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %2
+> 4.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) ",
+> " %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _n
+.   file write fr "wp_feS,educ," %24.17g (el(e(randomweightstest1),1,1)) "," %2
+> 4.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),1
+> ,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "wp_feS,ERROR" _n
+. }
+
+. 
+. * ---- wp_feS_ctrl_w
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_feS_ctrl_w"
+CASE: wp_feS_ctrl_w
+
+. cap noi twowayfeweights lwage nr year union, type(feS) summary_measures path(
+> "stata_out/wp_feS_ctrl_w_w.dta") controls(hours married) weight(wt) test_rand
+> om_weights(educ)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.0979, estimates a weighted sum of 228 ATT
+> s. 
+228 ATTs receive a positive weight, and 0 receive a negative weight.
+------------------------------------------------
+Treat. var: union       # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        228         1.0000      
+Negative weights        0           0.0000      
+------------------------------------------------
+Total                   228         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.0979
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.1143
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+educ    .12252659    .10384546    1.1798936    .06419959
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_feS_ctrl_w," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1))
+>  "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2
+> ,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_t
+> e2)) _n
+.   file write fr "wp_feS_ctrl_w,educ," %24.17g (el(e(randomweightstest1),1,1))
+>  "," %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightst
+> est1),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "wp_feS_ctrl_w,ERROR" _n
+. }
+
+. 
+. * ---- wp_fdS
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_fdS"
+CASE: wp_fdS
+
+. cap noi twowayfeweights diff_lwage nr year diff_union, type(fdS) summary_meas
+> ures path("stata_out/wp_fdS_w.dta") test_random_weights(educ)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.0601, estimates a weighted sum of 228 ATT
+> s. 
+228 ATTs receive a positive weight, and 0 receive a negative weight.
+------------------------------------------------
+Treat. var: diff_union  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        228         1.0000      
+Negative weights        0           0.0000      
+------------------------------------------------
+Total                   228         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.0601
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    2.2081
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+educ    7.0513258    4.4381053    1.5888144    .11625119
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_fdS," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %2
+> 4.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) ",
+> " %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _n
+.   file write fr "wp_fdS,educ," %24.17g (el(e(randomweightstest1),1,1)) "," %2
+> 4.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),1
+> ,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "wp_fdS,ERROR" _n
+. }
+
+. 
+. * ---- wp_fdS_ctrl_w
+. use "wagepan.dta", clear
+
+. scalar drop _all
+
+. di "CASE: wp_fdS_ctrl_w"
+CASE: wp_fdS_ctrl_w
+
+. cap noi twowayfeweights diff_lwage nr year diff_union, type(fdS) summary_meas
+> ures path("stata_out/wp_fdS_ctrl_w_w.dta") controls(hours) weight(wt) test_ra
+> ndom_weights(educ)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.0776, estimates a weighted sum of 228 ATT
+> s. 
+228 ATTs receive a positive weight, and 0 receive a negative weight.
+------------------------------------------------
+Treat. var: diff_union  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        228         1.0000      
+Negative weights        0           0.0000      
+------------------------------------------------
+Total                   228         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.0776
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    2.7278
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+educ    7.5566602    4.4677008     1.691398    .13146928
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "wp_fdS_ctrl_w," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1))
+>  "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2
+> ,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_t
+> e2)) _n
+.   file write fr "wp_fdS_ctrl_w,educ," %24.17g (el(e(randomweightstest1),1,1))
+>  "," %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightst
+> est1),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "wp_fdS_ctrl_w,ERROR" _n
+. }
+
+. 
+. * ---- gz_feTR
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_feTR"
+CASE: gz_feTR
+
+. cap noi twowayfeweights prestout cnty90 year numdailies, type(feTR) summary_m
+> easures path("stata_out/gz_feTR_w.dta")
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.0029, estimates a weighted sum of 10378 A
+> TTs. 
+6180 ATTs receive a positive weight, and 4198 receive a negative weight.
+------------------------------------------------
+Treat. var: numdailies  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        6180        1.4740      
+Negative weights        4198        -0.4740     
+------------------------------------------------
+Total                   10378       1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.0029
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0010
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    0.0019
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_feTR," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %
+> 24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) "
+> ," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _
+> n
+. }
+
+. else {
+.   file write fh "gz_feTR,ERROR" _n
+. }
+
+. 
+. * ---- gz_feTR_styr
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_feTR_styr"
+CASE: gz_feTR_styr
+
+. cap noi twowayfeweights prestout cnty90 year numdailies, type(feTR) summary_m
+> easures path("stata_out/gz_feTR_styr_w.dta") controls(styr1-styr683)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to -0.0012, estimates a weighted sum of 10342 
+> ATTs. 
+6195 ATTs receive a positive weight, and 4147 receive a negative weight.
+10378 (g,t) cells receive the treatment, but the ATTs of 36 cells receive a wei
+> ght equal to zero.
+------------------------------------------------
+Treat. var: numdailies  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        6195        1.5331      
+Negative weights        4147        -0.5331     
+------------------------------------------------
+Total                   10342       1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =   -0.0012
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0004
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    0.0007
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_feTR_styr," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) 
+> "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,
+> 2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te
+> 2)) _n
+. }
+
+. else {
+.   file write fh "gz_feTR_styr,ERROR" _n
+. }
+
+. 
+. * ---- gz_fdTR
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_fdTR"
+CASE: gz_fdTR
+
+. cap noi twowayfeweights changeprestout cnty90 year changedailies numdailies, 
+> type(fdTR) summary_measures path("stata_out/gz_fdTR_w.dta") test_random_weigh
+> ts(year)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.0034, estimates a weighted sum of 10378 A
+> TTs. 
+4790 ATTs receive a positive weight, and 5588 receive a negative weight.
+------------------------------------------------
+Treat. var: changedail~s# ATTs      Σ weights  
+------------------------------------------------
+Positive weights        4790        2.3040      
+Negative weights        5588        -1.3040     
+------------------------------------------------
+Total                   10378       1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.0034
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0006
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:    0.0009
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+year   -.18159521    .05454841   -3.3290648   -.06568259
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_fdTR," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %
+> 24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) "
+> ," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _
+> n
+.   file write fr "gz_fdTR,year," %24.17g (el(e(randomweightstest1),1,1)) "," %
+> 24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),
+> 1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "gz_fdTR,ERROR" _n
+. }
+
+. 
+. * ---- gz_fdTR_styr
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_fdTR_styr"
+CASE: gz_fdTR_styr
+
+. cap noi twowayfeweights changeprestout cnty90 year changedailies numdailies, 
+> type(fdTR) summary_measures path("stata_out/gz_fdTR_styr_w.dta") controls(sty
+> r1-styr683)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.0026, estimates a weighted sum of 9876 AT
+> Ts. 
+5371 ATTs receive a positive weight, and 4505 receive a negative weight.
+10378 (g,t) cells receive the treatment, but the ATTs of 502 cells receive a we
+> ight equal to zero.
+------------------------------------------------
+Treat. var: changedail~s# ATTs      Σ weights  
+------------------------------------------------
+Positive weights        5371        2.4271      
+Negative weights        4505        -1.4271     
+------------------------------------------------
+Total                   9876        1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.0026
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0004
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:    0.0006
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_fdTR_styr," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) 
+> "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,
+> 2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te
+> 2)) _n
+. }
+
+. else {
+.   file write fh "gz_fdTR_styr,ERROR" _n
+. }
+
+. 
+. * ---- gz_fdTR_styr_rw
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_fdTR_styr_rw"
+CASE: gz_fdTR_styr_rw
+
+. cap noi twowayfeweights changeprestout cnty90 year changedailies numdailies, 
+> type(fdTR) summary_measures path("stata_out/gz_fdTR_styr_rw_w.dta") controls(
+> styr1-styr683) test_random_weights(year)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.0026, estimates a weighted sum of 9876 AT
+> Ts. 
+5371 ATTs receive a positive weight, and 4505 receive a negative weight.
+10378 (g,t) cells receive the treatment, but the ATTs of 502 cells receive a we
+> ight equal to zero.
+------------------------------------------------
+Treat. var: changedail~s# ATTs      Σ weights  
+------------------------------------------------
+Positive weights        5371        2.4271      
+Negative weights        4505        -1.4271     
+------------------------------------------------
+Total                   9876        1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.0026
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0004
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:    0.0006
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+year    -.1674271    .05101171   -3.2821307    -.0631614
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_fdTR_styr_rw," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1
+> )) "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M)
+> ,2,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se
+> _te2)) _n
+.   file write fr "gz_fdTR_styr_rw,year," %24.17g (el(e(randomweightstest1),1,1
+> )) "," %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweight
+> stest1),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "gz_fdTR_styr_rw,ERROR" _n
+. }
+
+. 
+. * ---- gz_feS
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_feS"
+CASE: gz_feS
+
+. cap noi twowayfeweights prestout cnty90 year numdailies, type(feS) summary_me
+> asures path("stata_out/gz_feS_w.dta") test_random_weights(year)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.0029, estimates a weighted sum of 4564 AT
+> Ts. 
+3324 ATTs receive a positive weight, and 1240 receive a negative weight.
+------------------------------------------------
+Treat. var: numdailies  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        3324        1.2570      
+Negative weights        1240        -0.2570     
+------------------------------------------------
+Total                   4564        1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.0029
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0009
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    0.0025
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+year    .78337499    .23368707    3.3522394     .1579331
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_feS," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %2
+> 4.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) ",
+> " %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _n
+.   file write fr "gz_feS,year," %24.17g (el(e(randomweightstest1),1,1)) "," %2
+> 4.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),1
+> ,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "gz_feS,ERROR" _n
+. }
+
+. 
+. * ---- gz_fdS
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_fdS"
+CASE: gz_fdS
+
+. cap noi twowayfeweights changeprestout cnty90 year changedailies, type(fdS) s
+> ummary_measures path("stata_out/gz_fdS_w.dta") test_random_weights(year)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.0034, estimates a weighted sum of 4564 AT
+> Ts. 
+4564 ATTs receive a positive weight, and 0 receive a negative weight.
+------------------------------------------------
+Treat. var: changedail~s# ATTs      Σ weights  
+------------------------------------------------
+Positive weights        4564        1.0000      
+Negative weights        0           0.0000      
+------------------------------------------------
+Total                   4564        1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.0034
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0054
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+year    -1.983685    .98077569   -2.0225674   -.08203658
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_fdS," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %2
+> 4.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) ",
+> " %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _n
+.   file write fr "gz_fdS,year," %24.17g (el(e(randomweightstest1),1,1)) "," %2
+> 4.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),1
+> ,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "gz_fdS,ERROR" _n
+. }
+
+. 
+. * ---- gz_feTR_w
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_feTR_w"
+CASE: gz_feTR_w
+
+. cap noi twowayfeweights prestout cnty90 year numdailies, type(feTR) summary_m
+> easures path("stata_out/gz_feTR_w_w.dta") weight(share_urb_baseline) test_ran
+> dom_weights(year)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.0072, estimates a weighted sum of 697 ATT
+> s. 
+336 ATTs receive a positive weight, and 361 receive a negative weight.
+------------------------------------------------
+Treat. var: numdailies  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        336         2.0571      
+Negative weights        361         -1.0571     
+------------------------------------------------
+Total                   697         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.0072
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0018
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    0.0026
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+year   -.04606195    .45142741   -.10203623   -.01035145
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_feTR_w," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) ","
+>  %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2))
+>  "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2))
+>  _n
+.   file write fr "gz_feTR_w,year," %24.17g (el(e(randomweightstest1),1,1)) ","
+>  %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1
+> ),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "gz_feTR_w,ERROR" _n
+. }
+
+. 
+. * ---- gz_feS_styr
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_feS_styr"
+CASE: gz_feS_styr
+
+. cap noi twowayfeweights prestout cnty90 year numdailies, type(feS) summary_me
+> asures path("stata_out/gz_feS_styr_w.dta") controls(styr1-styr683) test_rando
+> m_weights(year)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to -0.0012, estimates a weighted sum of 4553 A
+> TTs. 
+3266 ATTs receive a positive weight, and 1287 receive a negative weight.
+4564 (g,t) cells receive the treatment, but the ATTs of 11 cells receive a weig
+> ht equal to zero.
+------------------------------------------------
+Treat. var: numdailies  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        3266        1.2672      
+Negative weights        1287        -0.2672     
+------------------------------------------------
+Total                   4553        1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =   -0.0012
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0004
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    0.0010
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+year    .76342319    .23022198    3.3160308    .16122305
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_feS_styr," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "
+> ," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2
+> )) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2
+> )) _n
+.   file write fr "gz_feS_styr,year," %24.17g (el(e(randomweightstest1),1,1)) "
+> ," %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstes
+> t1),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "gz_feS_styr,ERROR" _n
+. }
+
+. 
+. * ---- gz_fdS_styr
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_fdS_styr"
+CASE: gz_fdS_styr
+
+. cap noi twowayfeweights changeprestout cnty90 year changedailies, type(fdS) s
+> ummary_measures path("stata_out/gz_fdS_styr_w.dta") controls(styr1-styr683) t
+> est_random_weights(year)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.0026, estimates a weighted sum of 4554 AT
+> Ts. 
+4541 ATTs receive a positive weight, and 13 receive a negative weight.
+4564 (g,t) cells receive the treatment, but the ATTs of 10 cells receive a weig
+> ht equal to zero.
+------------------------------------------------
+Treat. var: changedail~s# ATTs      Σ weights  
+------------------------------------------------
+Positive weights        4541        1.0005      
+Negative weights        13          -0.0005     
+------------------------------------------------
+Total                   4554        1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.0026
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0038
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:    0.1847
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+year   -1.6004085    .87960497   -1.8194628   -.07053317
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_fdS_styr," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "
+> ," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2
+> )) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2
+> )) _n
+.   file write fr "gz_fdS_styr,year," %24.17g (el(e(randomweightstest1),1,1)) "
+> ," %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstes
+> t1),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "gz_fdS_styr,ERROR" _n
+. }
+
+. 
+. * ---- gz_feS_w
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_feS_w"
+CASE: gz_feS_w
+
+. cap noi twowayfeweights prestout cnty90 year numdailies, type(feS) summary_me
+> asures path("stata_out/gz_feS_w_w.dta") weight(share_urb_baseline) test_rando
+> m_weights(year)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.0072, estimates a weighted sum of 373 ATT
+> s. 
+249 ATTs receive a positive weight, and 124 receive a negative weight.
+------------------------------------------------
+Treat. var: numdailies  # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        249         1.3421      
+Negative weights        124         -0.3421     
+------------------------------------------------
+Total                   373         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.0072
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0025
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    0.0054
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+year    .52799803    .49144624     1.074376    .08824517
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_feS_w," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," 
+> %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) 
+> "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) 
+> _n
+.   file write fr "gz_feS_w,year," %24.17g (el(e(randomweightstest1),1,1)) "," 
+> %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1)
+> ,1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "gz_feS_w,ERROR" _n
+. }
+
+. 
+. * ---- gz_fdS_w
+. use "gentzkow.dta", clear
+
+. scalar drop _all
+
+. di "CASE: gz_fdS_w"
+CASE: gz_fdS_w
+
+. cap noi twowayfeweights changeprestout cnty90 year changedailies, type(fdS) s
+> ummary_measures path("stata_out/gz_fdS_w_w.dta") weight(share_urb_baseline) t
+> est_random_weights(year)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to -0.0035, estimates a weighted sum of 373 AT
+> Ts. 
+373 ATTs receive a positive weight, and 0 receive a negative weight.
+------------------------------------------------
+Treat. var: changedail~s# ATTs      Σ weights  
+------------------------------------------------
+Positive weights        373         1.0000      
+Negative weights        0           0.0000      
+------------------------------------------------
+Total                   373         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =   -0.0035
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0061
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+             Coef           SE       t-stat  Correlation
+year   -5.8733574    1.4989188    -3.918396   -.20046598
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "gz_fdS_w," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," 
+> %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) 
+> "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) 
+> _n
+.   file write fr "gz_fdS_w,year," %24.17g (el(e(randomweightstest1),1,1)) "," 
+> %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1)
+> ,1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "gz_fdS_w,ERROR" _n
+. }
+
+. 
+. * ---- sim_feTR
+. use "sim.dta", clear
+
+. scalar drop _all
+
+. di "CASE: sim_feTR"
+CASE: sim_feTR
+
+. cap noi twowayfeweights Y g t D, type(feTR) summary_measures path("stata_out/
+> sim_feTR_w.dta") controls(x1 x2) weight(w) test_random_weights(z)
+The treatment variable in the regression varies within some group * period cell
+> s.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) apply to two-
+> way fixed effects regressions
+with a group * period level treatment.
+The command will replace the treatment by its average value in each group * per
+> iod.
+The results below apply to the two-way fixed effects regression with that treat
+> ment variable.
+
+The control variable 1 varies within some group * period cells.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fi
+> xed effects regressions
+with controls apply to group * period level controls.
+The command will replace control variable 1 by its average value in each group 
+> * period cell.
+The results below apply to the regression with control variable 1 averaged at t
+> he group * period level.
+
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.2695, estimates a weighted sum of 144 ATT
+> s. 
+124 ATTs receive a positive weight, and 20 receive a negative weight.
+------------------------------------------------
+Treat. var: D           # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        124         1.0679      
+Negative weights        20          -0.0679     
+------------------------------------------------
+Total                   144         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.2695
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.3027
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    1.1274
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+          Coef           SE       t-stat  Correlation
+z   -.05211269    .09926773   -.52497111   -.04824379
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "sim_feTR," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," 
+> %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) 
+> "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) 
+> _n
+.   file write fr "sim_feTR,z," %24.17g (el(e(randomweightstest1),1,1)) "," %24
+> .17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),1,
+> 3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "sim_feTR,ERROR" _n
+. }
+
+. 
+. * ---- sim_feTR_ot
+. use "sim.dta", clear
+
+. scalar drop _all
+
+. di "CASE: sim_feTR_ot"
+CASE: sim_feTR_ot
+
+. cap noi twowayfeweights Y g t D, type(feTR) summary_measures path("stata_out/
+> sim_feTR_ot_w.dta") controls(x1) weight(w) other_treatments(D2) test_random_w
+> eights(z)
+The treatment variable in the regression varies within some group * period cell
+> s.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) apply to two-
+> way fixed effects regressions
+with a group * period level treatment.
+The command will replace the treatment by its average value in each group * per
+> iod.
+The results below apply to the two-way fixed effects regression with that treat
+> ment variable.
+
+The other treatment variable 1 varies within some group * period cells.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fi
+> xed effects regressions
+with several treatments apply to group * period level treatments.
+The command will replace other treatment variable 1 by its average value in eac
+> h group * period cell.
+The results below apply to the regression with other treatment variable 1 avera
+> ged at the group * period level.
+
+The control variable 1 varies within some group * period cells.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fi
+> xed effects regressions
+with controls apply to group * period level controls.
+The command will replace control variable 1 by its average value in each group 
+> * period cell.
+The results below apply to the regression with control variable 1 averaged at t
+> he group * period level.
+
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.2700, estimates the sum of several terms.
+
+The first term is a weighted sum of 144 ATTs of the treatment.
+124 ATTs receive a positive weight, and 20 receive a negative weight.
+273 (g,t) cells receive the treatment, but the ATTs of 129 cells receive a weig
+> ht equal to zero.
+------------------------------------------------
+Treat. var: D           # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        124         1.0682      
+Negative weights        20          -0.0682     
+------------------------------------------------
+Total                   144         1.0000      
+------------------------------------------------
+
+The next term is a weighted sum of 220 ATTs of treatment 1 included in the othe
+> r_treatments option.
+102 ATTs receive a positive weight, and 118 receive a negative weight.
+490 (g,t) cells receive the treatment, but the ATTs of 270 cells receive a weig
+> ht equal to zero.
+------------------------------------------------
+Other treat.: D2        # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        102         0.2962      
+Negative weights        118         -0.2962     
+------------------------------------------------
+Total                   220         0.0000      
+------------------------------------------------
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights attached to the treatment
+
+B[1,4]
+          Coef           SE       t-stat  Correlation
+z   -.05206927    .09909698   -.52543755   -.04819352
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "sim_feTR_ot," %24.17g (e(beta)) "," %24.17g (el(e(M1),1,1)) 
+> "," %24.17g (el(e(M1),2,1)) "," %24.17g (el(e(M1),1,2)) "," %24.17g (el(e(M1)
+> ,2,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se
+> _te2)) _n
+.   file write fo "sim_feTR_ot,1," %24.17g (el(e(M2),1,1)) "," %24.17g (el(e(M2
+> ),2,1)) "," %24.17g (el(e(M2),1,2)) "," %24.17g (el(e(M2),2,2)) "," %24.17g (
+> tot_cells_1) _n
+.   file write fr "sim_feTR_ot,z," %24.17g (el(e(randomweightstest1),1,1)) "," 
+> %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1)
+> ,1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "sim_feTR_ot,ERROR" _n
+. }
+
+. 
+. * ---- sim_fdTR
+. use "sim.dta", clear
+
+. scalar drop _all
+
+. di "CASE: sim_fdTR"
+CASE: sim_fdTR
+
+. cap noi twowayfeweights dY g t dD D, type(fdTR) summary_measures path("stata_
+> out/sim_fdTR_w.dta") controls(x1) weight(w) test_random_weights(z)
+The control variable 1 varies within some group * period cells.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fi
+> xed effects regressions
+with controls apply to group * period level controls.
+The command will replace control variable 1 by its average value in each group 
+> * period cell.
+The results below apply to the regression with control variable 1 averaged at t
+> he group * period level.
+
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.3346, estimates a weighted sum of 141 ATT
+> s. 
+94 ATTs receive a positive weight, and 47 receive a negative weight.
+------------------------------------------------
+Treat. var: dD          # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        94          1.3600      
+Negative weights        47          -0.3600     
+------------------------------------------------
+Total                   141         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.3346
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.1520
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:    0.3579
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+          Coef           SE       t-stat  Correlation
+z   -.01326226    .04177862   -.31744142   -.03005634
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "sim_fdTR," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," 
+> %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) 
+> "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) 
+> _n
+.   file write fr "sim_fdTR,z," %24.17g (el(e(randomweightstest1),1,1)) "," %24
+> .17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),1,
+> 3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "sim_fdTR,ERROR" _n
+. }
+
+. 
+. * ---- sim_feS
+. use "sim.dta", clear
+
+. scalar drop _all
+
+. di "CASE: sim_feS"
+CASE: sim_feS
+
+. cap noi twowayfeweights Y g t D, type(feS) summary_measures path("stata_out/s
+> im_feS_w.dta") controls(x1) weight(w) test_random_weights(z)
+The treatment variable in the regression varies within some group * period cell
+> s.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) apply to two-
+> way fixed effects regressions
+with a group * period level treatment.
+The command will replace the treatment by its average value in each group * per
+> iod.
+The results below apply to the two-way fixed effects regression with that treat
+> ment variable.
+
+The control variable 1 varies within some group * period cells.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fi
+> xed effects regressions
+with controls apply to group * period level controls.
+The command will replace control variable 1 by its average value in each group 
+> * period cell.
+The results below apply to the regression with control variable 1 averaged at t
+> he group * period level.
+
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.2695, estimates a weighted sum of 141 ATT
+> s. 
+103 ATTs receive a positive weight, and 38 receive a negative weight.
+------------------------------------------------
+Treat. var: D           # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        103         1.0675      
+Negative weights        38          -0.0675     
+------------------------------------------------
+Total                   141         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.2695
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.2158
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    1.0400
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+          Coef           SE       t-stat  Correlation
+z    .03094547    .07039546    .43959468    .04086628
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "sim_feS," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %
+> 24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) "
+> ," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _
+> n
+.   file write fr "sim_feS,z," %24.17g (el(e(randomweightstest1),1,1)) "," %24.
+> 17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),1,3
+> )) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "sim_feS,ERROR" _n
+. }
+
+. 
+. * ---- sim_fdS
+. use "sim.dta", clear
+
+. scalar drop _all
+
+. di "CASE: sim_fdS"
+CASE: sim_fdS
+
+. cap noi twowayfeweights dY g t dD, type(fdS) summary_measures path("stata_out
+> /sim_fdS_w.dta") controls(x1) weight(w) test_random_weights(z)
+The control variable 1 varies within some group * period cells.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fi
+> xed effects regressions
+with controls apply to group * period level controls.
+The command will replace control variable 1 by its average value in each group 
+> * period cell.
+The results below apply to the regression with control variable 1 averaged at t
+> he group * period level.
+
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.3346, estimates a weighted sum of 148 ATT
+> s. 
+126 ATTs receive a positive weight, and 22 receive a negative weight.
+------------------------------------------------
+Treat. var: dD          # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        126         1.0014      
+Negative weights        22          -0.0014     
+------------------------------------------------
+Total                   148         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.3346
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.7307
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:   24.5504
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+          Coef           SE       t-stat  Correlation
+z    -.1082642    .18439209   -.58714126   -.05171297
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "sim_fdS," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "," %
+> 24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2)) "
+> ," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2)) _
+> n
+.   file write fr "sim_fdS,z," %24.17g (el(e(randomweightstest1),1,1)) "," %24.
+> 17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1),1,3
+> )) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "sim_fdS,ERROR" _n
+. }
+
+. 
+. * ---- sim_feTR_now
+. use "sim.dta", clear
+
+. scalar drop _all
+
+. di "CASE: sim_feTR_now"
+CASE: sim_feTR_now
+
+. cap noi twowayfeweights Y g t D, type(feTR) summary_measures path("stata_out/
+> sim_feTR_now_w.dta")
+The treatment variable in the regression varies within some group * period cell
+> s.
+The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) apply to two-
+> way fixed effects regressions
+with a group * period level treatment.
+The command will replace the treatment by its average value in each group * per
+> iod.
+The results below apply to the two-way fixed effects regression with that treat
+> ment variable.
+
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.2955, estimates a weighted sum of 145 ATT
+> s. 
+122 ATTs receive a positive weight, and 23 receive a negative weight.
+------------------------------------------------
+Treat. var: D           # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        122         1.0659      
+Negative weights        23          -0.0659     
+------------------------------------------------
+Total                   145         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.2955
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.3316
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    1.2311
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "sim_feTR_now," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) 
+> "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,
+> 2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te
+> 2)) _n
+. }
+
+. else {
+.   file write fh "sim_feTR_now,ERROR" _n
+. }
+
+. 
+. * ---- sim_fdTR_now
+. use "sim.dta", clear
+
+. scalar drop _all
+
+. di "CASE: sim_fdTR_now"
+CASE: sim_fdTR_now
+
+. cap noi twowayfeweights dY g t dD D, type(fdTR) summary_measures path("stata_
+> out/sim_fdTR_now_w.dta")
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.3327, estimates a weighted sum of 141 ATT
+> s. 
+90 ATTs receive a positive weight, and 51 receive a negative weight.
+------------------------------------------------
+Treat. var: dD          # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        90          1.3426      
+Negative weights        51          -0.3426     
+------------------------------------------------
+Total                   141         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.3327
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.1591
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:    0.3878
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "sim_fdTR_now," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) 
+> "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,
+> 2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te
+> 2)) _n
+. }
+
+. else {
+.   file write fh "sim_fdTR_now,ERROR" _n
+. }
+
+. 
+. * ---- sim_fdS_now
+. use "sim.dta", clear
+
+. scalar drop _all
+
+. di "CASE: sim_fdS_now"
+CASE: sim_fdS_now
+
+. cap noi twowayfeweights dY g t dD, type(fdS) summary_measures path("stata_out
+> /sim_fdS_now_w.dta")
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.3327, estimates a weighted sum of 149 ATT
+> s. 
+128 ATTs receive a positive weight, and 21 receive a negative weight.
+------------------------------------------------
+Treat. var: dD          # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        128         1.0012      
+Negative weights        21          -0.0012     
+------------------------------------------------
+Total                   149         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.3327
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.7427
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:   27.8319
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "sim_fdS_now," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "
+> ," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2
+> )) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2
+> )) _n
+. }
+
+. else {
+.   file write fh "sim_fdS_now,ERROR" _n
+. }
+
+. 
+. * ---- simcell_feTR
+. use "simcell.dta", clear
+
+. scalar drop _all
+
+. di "CASE: simcell_feTR"
+CASE: simcell_feTR
+
+. cap noi twowayfeweights Y g t D, type(feTR) summary_measures path("stata_out/
+> simcell_feTR_w.dta") controls(x1 x2) weight(w) test_random_weights(z)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.2597, estimates a weighted sum of 144 ATT
+> s. 
+124 ATTs receive a positive weight, and 20 receive a negative weight.
+------------------------------------------------
+Treat. var: D           # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        124         1.0674      
+Negative weights        20          -0.0674     
+------------------------------------------------
+Total                   144         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.2597
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.2929
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    1.0919
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+          Coef           SE       t-stat  Correlation
+z    .11604111    .07048741    1.6462673    .13585509
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "simcell_feTR," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) 
+> "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,
+> 2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te
+> 2)) _n
+.   file write fr "simcell_feTR,z," %24.17g (el(e(randomweightstest1),1,1)) ","
+>  %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1
+> ),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "simcell_feTR,ERROR" _n
+. }
+
+. 
+. * ---- simcell_feS
+. use "simcell.dta", clear
+
+. scalar drop _all
+
+. di "CASE: simcell_feS"
+CASE: simcell_feS
+
+. cap noi twowayfeweights Y g t D, type(feS) summary_measures path("stata_out/s
+> imcell_feS_w.dta") controls(x1) weight(w) test_random_weights(z)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.2597, estimates a weighted sum of 141 ATT
+> s. 
+105 ATTs receive a positive weight, and 36 receive a negative weight.
+------------------------------------------------
+Treat. var: D           # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        105         1.0567      
+Negative weights        36          -0.0567     
+------------------------------------------------
+Total                   141         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.2597
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.2133
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    1.1253
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+          Coef           SE       t-stat  Correlation
+z    .06171733    .05494714    1.1232129    .11160512
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "simcell_feS," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "
+> ," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2
+> )) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2
+> )) _n
+.   file write fr "simcell_feS,z," %24.17g (el(e(randomweightstest1),1,1)) "," 
+> %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1)
+> ,1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "simcell_feS,ERROR" _n
+. }
+
+. 
+. * ---- simcell_feS_now
+. use "simcell.dta", clear
+
+. scalar drop _all
+
+. di "CASE: simcell_feS_now"
+CASE: simcell_feS_now
+
+. cap noi twowayfeweights Y g t D, type(feS) summary_measures path("stata_out/s
+> imcell_feS_now_w.dta")
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.2696, estimates a weighted sum of 141 ATT
+> s. 
+103 ATTs receive a positive weight, and 38 receive a negative weight.
+------------------------------------------------
+Treat. var: D           # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        103         1.0611      
+Negative weights        38          -0.0611     
+------------------------------------------------
+Total                   141         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fe) =    0.2696
+min σ(Δ) compatible with β_fe and Δ_TR = 0:    0.2865
+min σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,
+> t) cells:    1.2413
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "simcell_feS_now," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1
+> )) "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M)
+> ,2,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se
+> _te2)) _n
+. }
+
+. else {
+.   file write fh "simcell_feS_now,ERROR" _n
+. }
+
+. 
+. * ---- simcell_fdTR
+. use "simcell.dta", clear
+
+. scalar drop _all
+
+. di "CASE: simcell_fdTR"
+CASE: simcell_fdTR
+
+. cap noi twowayfeweights dY g t dD D, type(fdTR) summary_measures path("stata_
+> out/simcell_fdTR_w.dta") weight(w) test_random_weights(z)
+
+Under the common trends assumption,
+the TWFE coefficient beta, equal to 0.3398, estimates a weighted sum of 144 ATT
+> s. 
+93 ATTs receive a positive weight, and 51 receive a negative weight.
+------------------------------------------------
+Treat. var: dD          # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        93          1.3710      
+Negative weights        51          -0.3710     
+------------------------------------------------
+Total                   144         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.3398
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.1544
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:    0.3631
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+          Coef           SE       t-stat  Correlation
+z    .00464073    .02449541    .18945306    .01347917
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "simcell_fdTR," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) 
+> "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,
+> 2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te
+> 2)) _n
+.   file write fr "simcell_fdTR,z," %24.17g (el(e(randomweightstest1),1,1)) ","
+>  %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1
+> ),1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "simcell_fdTR,ERROR" _n
+. }
+
+. 
+. * ---- simcell_fdS
+. use "simcell.dta", clear
+
+. scalar drop _all
+
+. di "CASE: simcell_fdS"
+CASE: simcell_fdS
+
+. cap noi twowayfeweights dY g t dD, type(fdS) summary_measures path("stata_out
+> /simcell_fdS_w.dta") weight(w) test_random_weights(z)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.3398, estimates a weighted sum of 146 ATT
+> s. 
+125 ATTs receive a positive weight, and 21 receive a negative weight.
+------------------------------------------------
+Treat. var: dD          # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        125         1.0014      
+Negative weights        21          -0.0014     
+------------------------------------------------
+Total                   146         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.3398
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.7404
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:   24.9665
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+Regression of variables possibly correlated with the treatment effect on the we
+> ights
+
+B[1,4]
+          Coef           SE       t-stat  Correlation
+z   -.14606791    .11843639   -1.2333027    -.0946385
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "simcell_fdS," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1)) "
+> ," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M),2,2
+> )) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se_te2
+> )) _n
+.   file write fr "simcell_fdS,z," %24.17g (el(e(randomweightstest1),1,1)) "," 
+> %24.17g (el(e(randomweightstest1),1,2)) "," %24.17g (el(e(randomweightstest1)
+> ,1,3)) "," %24.17g (el(e(randomweightstest1),1,4)) _n
+. }
+
+. else {
+.   file write fh "simcell_fdS,ERROR" _n
+. }
+
+. 
+. * ---- simcell_fdS_now
+. use "simcell.dta", clear
+
+. scalar drop _all
+
+. di "CASE: simcell_fdS_now"
+CASE: simcell_fdS_now
+
+. cap noi twowayfeweights dY g t dD, type(fdS) summary_measures path("stata_out
+> /simcell_fdS_now_w.dta") controls(x1 x2)
+
+Under the common trends assumption and
+the assumption that groups' treatment effects do not change over time,
+the TWFE coefficient beta, equal to 0.3361, estimates a weighted sum of 146 ATT
+> s. 
+122 ATTs receive a positive weight, and 24 receive a negative weight.
+------------------------------------------------
+Treat. var: dD          # ATTs      Σ weights  
+------------------------------------------------
+Positive weights        122         1.0010      
+Negative weights        24          -0.0010     
+------------------------------------------------
+Total                   146         1.0000      
+------------------------------------------------
+
+Summary Measures:
+TWFE coefficient (β_fd) =    0.3361
+min σ(Δ) compatible with β_fd and Δ_TR = 0:    0.7528
+min σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,
+> t) cells:   35.1039
+Reference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)
+
+
+The development of this package was funded by the European Union (ERC, REALLYCR
+> EDIBLE,GA N°101043899).
+
+. if _rc == 0 {
+.   file write fh "simcell_fdS_now," %24.17g (e(beta)) "," %24.17g (el(e(M),1,1
+> )) "," %24.17g (el(e(M),2,1)) "," %24.17g (el(e(M),1,2)) "," %24.17g (el(e(M)
+> ,2,2)) "," %24.17g (tot_cells) "," %24.17g (e(lb_se_te)) "," %24.17g (e(lb_se
+> _te2)) _n
+. }
+
+. else {
+.   file write fh "simcell_fdS_now,ERROR" _n
+. }
+
+. 
+. file close fh
+
+. file close fo
+
+. file close fr
+
+. log close
+      name:  <unnamed>
+       log:  C:\Users\eunic\OneDrive\Documents\GitHub\py_twowayfeweights\tests\
+> reference\work\stata_out/stata.log
+  log type:  text
+ closed on:  23 Sep 2026, 08:29:27
+-------------------------------------------------------------------------------
