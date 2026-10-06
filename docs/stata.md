@@ -17,14 +17,12 @@ For each specification, the tests check that:
 | what | how close |
 |---|---|
 | numbers of positive, negative and treated-cell weights | identical |
-| the printed report: every line of text, every count, every rounded number | identical (spacing aside) |
 | beta | within 1e-7 relative |
 | sums of weights, both summary measures | within 1e-6 relative |
 | `test_random_weights` table (Coef, SE, t-stat, Correlation) | within 5e-6 relative |
 | weight of every (group, period) cell | within 2e-6 of the largest weight |
 
-The [examples](examples.md) are 11 of these specifications, written as copy-paste code. Their
-output is also checked against Stata's.
+The [examples](examples.md) are 11 of these specifications, written as copy-paste code.
 
 ## Why the numbers are not identical to the last digit
 

@@ -2,8 +2,7 @@
 
 Every example on this page is one of the specifications the test suite compares with Stata.
 Each code block is complete: copy it, paste it into Python, and run it. The output shown is
-what Python prints; click **Stata output** to see what the Stata command prints. The tests
-check that the two match: same text, same counts, same rounded numbers.
+what Python prints; click **Stata output** to see what the Stata command prints.
 
 !!! note
     In the random-weights table, the last of the eight digits can differ from Stata's.

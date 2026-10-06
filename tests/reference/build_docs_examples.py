@@ -3,9 +3,7 @@
     python tests/reference/build_docs_examples.py
 
 Each example shows the Stata command, the equivalent copy-paste Python code, the Python output and
-(collapsed) the Stata output stored in ``tests/fixtures/stata/results.json``. ``tests/test_docs.py``
-runs every example and checks that it prints exactly the output shown, and that this output matches
-Stata's.
+(collapsed) the Stata output stored in ``tests/fixtures/stata/results.json``.
 """
 
 from __future__ import annotations
@@ -129,8 +127,7 @@ def build() -> str:
         "",
         "Every example on this page is one of the specifications the test suite compares with Stata.",
         "Each code block is complete: copy it, paste it into Python, and run it. The output shown is",
-        "what Python prints; click **Stata output** to see what the Stata command prints. The tests",
-        "check that the two match: same text, same counts, same rounded numbers.",
+        "what Python prints; click **Stata output** to see what the Stata command prints.",
         "",
         "!!! note",
         "    In the random-weights table, the last of the eight digits can differ from Stata's.",

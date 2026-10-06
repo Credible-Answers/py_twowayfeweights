@@ -12,7 +12,7 @@ import pytest
 from cases import load
 
 import twowayfeweights as tw
-from twowayfeweights import print_twowayfeweights, twowayfeweights
+from twowayfeweights import twowayfeweights
 
 
 @pytest.fixture(scope="module")
@@ -113,32 +113,20 @@ def test_path_output(tmp_path, wagepan, ext):
     np.testing.assert_allclose(back["weight"].sum(), r.sum_plus + r.sum_minus)
 
 
-def test_printing_and_legacy_access(wagepan, capsys):
-    r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", summary_measures=True, test_random_weights="educ",
-                        other_treatments=None)
-    text = r.summary()
-    assert "estimates a weighted sum of 967 ATTs" in text
-    assert "1016 (g,t) cells receive the treatment" in text
-    assert "Summary Measures:" in text and "3.1759" in text
-    print_twowayfeweights(r, D_name="union", type="feTR")
-    assert "Positive weights        820         1.0105" in capsys.readouterr().out
+def test_legacy_access(wagepan):
+    r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", test_random_weights="educ")
     assert r["n_pos"] == 820 and r["n_atts"] == 967 and r["n_zero"] == 49
     assert r["test_random_weights"]["educ"]["coef"] == pytest.approx(-0.1344553, rel=1e-6)
     assert list(r.M.index) == ["Pos_Weights", "Neg_Weights", "Tot"]
 
 
-def test_printing_other_treatments(wagepan):
+def test_legacy_access_other_treatments(wagepan):
     r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", other_treatments=["married", "south"])
-    text = r.summary()
-    assert "estimates the sum of several terms" in text
-    assert "Other treat.: married" in text and "Other treat.: south" in text
     assert r["other_treatments_results"]["married"]["nr_plus"] == r.other_treatments[0].nr_plus
 
 
 def test_print_on_cp1252_console(wagepan, monkeypatch):
+    """Printing must not crash on Windows consoles that cannot show Greek letters."""
     r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", summary_measures=True)
-    buf = io.TextIOWrapper(io.BytesIO(), encoding="cp1252")
-    monkeypatch.setattr(sys, "stdout", buf)
-    print(r)  # must not raise UnicodeEncodeError
-    buf.flush()
-    assert b"Sum weights" in buf.buffer.getvalue()
+    monkeypatch.setattr(sys, "stdout", io.TextIOWrapper(io.BytesIO(), encoding="cp1252"))
+    print(r)

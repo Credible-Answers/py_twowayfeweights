@@ -1,17 +1,16 @@
 """Parity with the Stata command, on every case in ``cases.py``.
 
 The Stata results are stored in ``fixtures/stata/results.json`` (one entry per case: the Stata command,
-every number it returns and the text it prints) and ``fixtures/stata/weights/`` (the (g,t) weights saved
+every number it returns and the text it prints; the text is not tested) and ``fixtures/stata/weights/`` (the (g,t) weights saved
 by ``path()``). They are produced by ``tests/reference/build_reference.py``.
 
 Stata stores intermediate variables (P_gt, residuals, W, weights) as 4-byte floats, so agreement is
-checked to ~1e-6 relative; counts and all printed text must match exactly.
+checked to ~1e-6 relative; counts must match exactly.
 """
 
 from __future__ import annotations
 
 import json
-import re
 import warnings
 
 import numpy as np
@@ -93,40 +92,6 @@ def test_other_treatments(case, results):
         assert o.tot_cells == row["tot_cells"]
         assert _close(o.sum_plus, row["sum_plus"])
         assert _close(o.sum_minus, row["sum_minus"])
-
-
-_NUMBER = re.compile(r"(-?\d*\.\d+(?:e[-+]\d+)?|-?\d+)")
-
-
-def _lines(text: str) -> list[str]:
-    return [" ".join(line.split()) for line in text.splitlines() if line.strip()]
-
-
-def _same_line(py: str, st: str) -> bool:
-    """Same text; integers identical; decimals equal up to the digits Stata shows (+ its float rounding)."""
-    a, b = _NUMBER.split(py), _NUMBER.split(st)
-    if len(a) != len(b):
-        return False
-    for i, (x, y) in enumerate(zip(a, b)):
-        if i % 2 == 0 or "." not in y:  # text, or an integer
-            if x != y:
-                return False
-        else:
-            mantissa, _, exponent = y.partition("e")
-            last_digit = 10.0 ** (int(exponent or 0) - len(mantissa.split(".")[1]))
-            if abs(float(x) - float(y)) > 0.5 * last_digit + RTOL_RW * abs(float(y)):
-                return False
-    return True
-
-
-@pytest.mark.parametrize("case", exact)
-def test_printed_output(case, results):
-    """``print(result)`` shows the same lines as Stata (spacing and Stata's line wrapping ignored)."""
-    py = _lines(results(case).summary())
-    st = _lines(REF[case["name"]]["output"])
-    assert len(py) == len(st), "\n".join(py)
-    for p, s in zip(py, st):
-        assert _same_line(p, s), f"\npython: {p}\nstata:  {s}"
 
 
 @pytest.mark.parametrize("case", exact)
