@@ -1,4 +1,8 @@
-"""Parity with the Stata command (fixtures produced by tests/reference/build_reference.py).
+"""Parity with the Stata command, on every case in ``cases.py``.
+
+The Stata results are stored in ``fixtures/stata/results.json`` (one entry per case: the Stata command,
+every number it returns and the text it prints; the text is not tested) and ``fixtures/stata/weights/`` (the (g,t) weights saved
+by ``path()``). They are produced by ``tests/reference/build_reference.py``.
 
 Stata stores intermediate variables (P_gt, residuals, W, weights) as 4-byte floats, so agreement is
 checked to ~1e-6 relative; counts must match exactly.
@@ -6,6 +10,7 @@ checked to ~1e-6 relative; counts must match exactly.
 
 from __future__ import annotations
 
+import json
 import warnings
 
 import numpy as np
@@ -17,11 +22,10 @@ RTOL = 1e-6
 # Regressions on Stata's float-stored W amplify its rounding slightly (observed max 1.3e-6).
 RTOL_RW = 5e-6
 STATA = FIXTURES / "stata"
-RESULTS = pd.read_csv(STATA / "results.csv").set_index("name")
-RW = pd.read_csv(STATA / "random_weights.csv")
-OT = pd.read_csv(STATA / "other_treatments.csv")
+REF = json.loads((STATA / "results.json").read_text(encoding="utf-8"))["cases"]
 
 params = [pytest.param(c, id=c["name"]) for c in CASES]
+exact = [pytest.param(c, id=c["name"]) for c in CASES if not c["beta_only"]]
 
 
 @pytest.fixture(scope="module")
@@ -39,15 +43,19 @@ def results():
 
 
 def _close(a, b, rtol=RTOL):
-    if b is None or (isinstance(b, float) and np.isnan(b)):
+    if b is None:
         return a is None or np.isnan(a)
     return a is not None and abs(a - b) <= rtol * max(abs(b), 1e-12)
+
+
+def test_every_case_has_stata_results():
+    assert sorted(REF) == sorted(c["name"] for c in CASES)
 
 
 @pytest.mark.parametrize("case", params)
 def test_scalars(case, results):
     r = results(case)
-    s = RESULTS.loc[case["name"]]
+    s = REF[case["name"]]
     assert _close(r.beta, s["beta"], 1e-7)
     if case["beta_only"]:
         return
@@ -60,13 +68,12 @@ def test_scalars(case, results):
     assert _close(r.sensibility2, s["sensibility2"])
 
 
-@pytest.mark.parametrize("case", [p for p in params if p.values[0]["test_random_weights"]])
+@pytest.mark.parametrize("case", [p for p in exact if p.values[0]["test_random_weights"]])
 def test_random_weights(case, results):
-    if case["beta_only"]:
-        pytest.skip("Stata output depends on its sort order")
     r = results(case)
-    ref = RW[RW["name"] == case["name"]].set_index("var")
-    for v, row in ref.iterrows():
+    ref = REF[case["name"]]["random_weights"]
+    assert list(r.mat.index) == list(ref)
+    for v, row in ref.items():
         got = r.mat.loc[v]
         assert _close(got["Coef"], row["Coef"], RTOL_RW)
         assert _close(got["SE"], row["SE"], RTOL_RW)
@@ -77,9 +84,9 @@ def test_random_weights(case, results):
 @pytest.mark.parametrize("case", [p for p in params if p.values[0]["other_treatments"]])
 def test_other_treatments(case, results):
     r = results(case)
-    ref = OT[OT["name"] == case["name"]].sort_values("j")
+    ref = REF[case["name"]]["other_treatments"]
     assert len(ref) == len(r.other_treatments)
-    for o, (_, row) in zip(r.other_treatments, ref.iterrows()):
+    for o, row in zip(r.other_treatments, ref):
         assert o.nr_plus == row["nr_plus"]
         assert o.nr_minus == row["nr_minus"]
         assert o.tot_cells == row["tot_cells"]
@@ -87,11 +94,9 @@ def test_other_treatments(case, results):
         assert _close(o.sum_minus, row["sum_minus"])
 
 
-@pytest.mark.parametrize("case", params)
+@pytest.mark.parametrize("case", exact)
 def test_cell_weights(case, results):
     """Every (g,t) weight saved by Stata's path() option is reproduced."""
-    if case["beta_only"]:
-        pytest.skip("Stata output depends on its sort order")
     r = results(case)
     ref = pd.read_csv(STATA / "weights" / f"{case['name']}.csv.gz")
     keys = [k for k in ref.columns if k in ("Group_TWFE", "Time_TWFE", "Group", "Time")]

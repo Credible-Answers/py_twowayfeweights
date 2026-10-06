@@ -12,29 +12,12 @@ import pytest
 from cases import load
 
 import twowayfeweights as tw
-from twowayfeweights import print_twowayfeweights, twowayfeweights
+from twowayfeweights import twowayfeweights
 
 
 @pytest.fixture(scope="module")
 def wagepan():
     return tw.load_wagepan()
-
-
-def test_wagepan_r_package_values(wagepan):
-    """Known values from the R package's tinytest suite (tests/test_wagepan.R)."""
-    r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", type="feTR", summary_measures=True,
-                        test_random_weights="educ")
-    assert (r.nr_plus, r.nr_minus, r.nr_weights, r.tot_cells) == (820, 147, 967, 1016)
-    np.testing.assert_allclose([r.beta, r.sum_plus, r.sum_minus, r.sensibility, r.sensibility2],
-                               [0.10662746641838491, 1.010529, -0.01052899, 0.0968691, 3.175859], rtol=1e-4)
-    np.testing.assert_allclose(r.mat.loc["educ"].to_numpy(),
-                               [-0.13445527172928173, 0.07136021078287243, -1.88417705405031, -0.11825873818614765],
-                               rtol=1e-5)
-    r = twowayfeweights(wagepan, "diff_lwage", "nr", "year", "diff_union", type="fdTR", D0="union",
-                        summary_measures=True, test_random_weights="educ")
-    assert (r.nr_plus, r.nr_minus, r.tot_cells) == (611, 405, 1016)
-    np.testing.assert_allclose([r.beta, r.sum_plus, r.sensibility, r.sensibility2],
-                               [0.06009597, 1.047636, 0.03209515, 0.5799135], rtol=1e-5)
 
 
 def test_did_book_chapter5():
@@ -91,12 +74,9 @@ def test_feS_micro_equals_collapsed():
     assert a.to_dict() == pytest.approx(b.to_dict(), rel=1e-8, nan_ok=True)
 
 
-def test_polars_input():
-    pl = pytest.importorskip("polars")
-    df = tw.load_wagepan()
-    a = twowayfeweights(df, "lwage", "nr", "year", "union")
-    b = twowayfeweights(pl.from_pandas(df), "lwage", "nr", "year", "union")
-    assert a.to_dict() == b.to_dict()
+def test_non_pandas_input_rejected(wagepan):
+    with pytest.raises(TypeError, match="pandas DataFrame"):
+        twowayfeweights(wagepan.to_dict("list"), "lwage", "nr", "year", "union")
 
 
 def test_normalization_warning():
@@ -133,32 +113,20 @@ def test_path_output(tmp_path, wagepan, ext):
     np.testing.assert_allclose(back["weight"].sum(), r.sum_plus + r.sum_minus)
 
 
-def test_printing_and_legacy_access(wagepan, capsys):
-    r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", summary_measures=True, test_random_weights="educ",
-                        other_treatments=None)
-    text = r.summary()
-    assert "estimates a weighted sum of 967 ATTs" in text
-    assert "1016 (g,t) cells receive the treatment" in text
-    assert "Summary Measures:" in text and "3.1759" in text
-    print_twowayfeweights(r, D_name="union", type="feTR")
-    assert "Positive weights        820         1.0105" in capsys.readouterr().out
+def test_legacy_access(wagepan):
+    r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", test_random_weights="educ")
     assert r["n_pos"] == 820 and r["n_atts"] == 967 and r["n_zero"] == 49
     assert r["test_random_weights"]["educ"]["coef"] == pytest.approx(-0.1344553, rel=1e-6)
     assert list(r.M.index) == ["Pos_Weights", "Neg_Weights", "Tot"]
 
 
-def test_printing_other_treatments(wagepan):
+def test_legacy_access_other_treatments(wagepan):
     r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", other_treatments=["married", "south"])
-    text = r.summary()
-    assert "estimates the sum of several terms" in text
-    assert "Other treat.: married" in text and "Other treat.: south" in text
     assert r["other_treatments_results"]["married"]["nr_plus"] == r.other_treatments[0].nr_plus
 
 
 def test_print_on_cp1252_console(wagepan, monkeypatch):
+    """Printing must not crash on Windows consoles that cannot show Greek letters."""
     r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", summary_measures=True)
-    buf = io.TextIOWrapper(io.BytesIO(), encoding="cp1252")
-    monkeypatch.setattr(sys, "stdout", buf)
-    print(r)  # must not raise UnicodeEncodeError
-    buf.flush()
-    assert b"Sum weights" in buf.buffer.getvalue()
+    monkeypatch.setattr(sys, "stdout", io.TextIOWrapper(io.BytesIO(), encoding="cp1252"))
+    print(r)

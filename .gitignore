@@ -3,10 +3,12 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+site/
 .pytest_cache/
 .venv/
 tests/reference/work/
+# local copies of the Stata/R packages, never committed
+.reference/
 *.log
-!tests/fixtures/stata/stata.log
 .DS_Store
 .Rhistory
