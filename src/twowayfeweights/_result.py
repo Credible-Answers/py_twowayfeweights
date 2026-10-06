@@ -53,6 +53,7 @@ class TwoWayFEWeightsResult:
     other_treatments: list[OtherTreatmentResult] = field(default_factory=list)
     weights: pd.DataFrame | None = field(default=None, repr=False)
     summary_measures: bool = False
+    notes: list[str] = field(default_factory=list, repr=False)
 
     # ------------------------------------------------------------------ Stata-style accessors
     @property
@@ -118,7 +119,10 @@ class TwoWayFEWeightsResult:
 
     # ------------------------------------------------------------------ printing
     def summary(self) -> str:
-        lines: list[str] = [""]
+        lines: list[str] = []
+        for note in self.notes:
+            lines += [note, ""]
+        lines.append("")
         n_att = self.nr_weights
         beta_s = f"{self.beta:.4f}"
         if self.other_treatments:
@@ -173,7 +177,7 @@ class TwoWayFEWeightsResult:
             title = "Regression of variables possibly correlated with the treatment effect on the weights"
             if self.other_treatments:
                 title += " attached to the treatment"
-            lines += ["", title, _format_mat(self.mat)]
+            lines += ["", title, "", _format_mat(self.mat)]
 
         lines += ["", "", _FUNDING]
         return "\n".join(lines)
@@ -229,32 +233,61 @@ def _zero_line(tot_cells: int, n_att: int) -> list[str]:
     return []
 
 
+def _abbrev(s: str, n: int) -> str:
+    """Stata's ``abbrev()``: ``Treat. var: changedailies`` -> ``Treat. var: changedail~s``."""
+    return s if len(s) <= n else s[: n - 2] + "~" + s[-1]
+
+
+def _f4s(x: float) -> str:
+    """``%9.4f``, without a minus sign on values that round to zero."""
+    s = f"{x:.4f}"
+    return s[1:] if s == "-0.0000" else s
+
+
 def _table(label: str, npl: int, nmi: int, spl: float, smi: float) -> list[str]:
-    w1 = max(24, len(label) + 2)
-    width = w1 + 24
-    rule = "-" * max(48, width)
+    rule = "-" * 48
 
     def row(a, b, c):
-        return f"{a:<{w1}}{b:<12}{c:<12}".rstrip()
+        return f"{_abbrev(a, 24):<24}{b:<12}{c:<12}".rstrip()
 
     return [
         rule,
         row(label, "# ATTs", "Σ weights"),
         rule,
-        row("Positive weights", str(npl), f"{spl:.4f}"),
-        row("Negative weights", str(nmi), f"{smi:.4f}"),
+        row("Positive weights", str(npl), _f4s(spl)),
+        row("Negative weights", str(nmi), _f4s(smi)),
         rule,
-        row("Total", str(npl + nmi), f"{spl + smi:.4f}"),
+        row("Total", str(npl + nmi), _f4s(spl + smi)),
         rule,
     ]
+
+
+def _g10(x: float) -> str:
+    """Stata's ``%10.0g`` display format, used by ``matrix list`` (e.g. ``-.13445527``)."""
+    if not np.isfinite(x):
+        return "."
+    if x == 0:
+        return "0"
+    ax = abs(x)
+    if 1e-4 <= ax < 1e8:
+        # nine characters for the digits and the decimal point, no leading zero
+        dec = 8 if ax < 1 else 8 - len(str(int(ax)))
+        body = f"{ax:.{dec}f}"
+        if "." in body:
+            body = body.rstrip("0").rstrip(".")
+        if body.startswith("0."):
+            body = body[1:]
+    else:
+        body = f"{ax:.3e}"
+    return ("-" if x < 0 else "") + body
 
 
 def _format_mat(mat: pd.DataFrame) -> str:
-    cols = list(mat.columns)
-    w0 = max(8, max(len(str(i)) for i in mat.index) + 2)
-    head = " " * w0 + "".join(f"{c:>13}" for c in cols)
+    """Layout of Stata's ``matrix list B``."""
+    w0 = max(len(str(i)) for i in mat.index)
+    head = " " * w0 + "".join(f"{c:>13}" for c in mat.columns)
     body = [
-        f"{str(i):<{w0}}" + "".join(f"{v:>13.7g}" if np.isfinite(v) else f"{'.':>13}" for v in r)
+        f"{str(i):>{w0}}" + "".join(f"{_g10(v):>13}" for v in r)
         for i, r in zip(mat.index, mat.to_numpy())
     ]
-    return "\n".join([head, *body])
+    return "\n".join([f"B[{mat.shape[0]},{mat.shape[1]}]", head, *body])

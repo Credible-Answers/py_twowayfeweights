@@ -1,0 +1,744 @@
+{
+  "source": "Stata command twowayfeweights from SSC (ssc install twowayfeweights)",
+  "generated": "2026-09-23",
+  "generator": "tests/reference/build_reference.py",
+  "cases": {
+    "wp_feTR": {
+      "command": "twowayfeweights lwage nr year union, type(feTR) summary_measures test_random_weights(educ)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.1066, estimates a weighted sum of 967 ATTs.\n820 ATTs receive a positive weight, and 147 receive a negative weight.\n1016 (g,t) cells receive the treatment, but the ATTs of 49 cells receive a weight equal to zero.\n------------------------------------------------\nTreat. var: union       # ATTs      Σ weights\n------------------------------------------------\nPositive weights        820         1.0105\nNegative weights        147         -0.0105\n------------------------------------------------\nTotal                   967         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.1066\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0969\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    3.1759\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\neduc   -.13445527    .07136021    -1.884177   -.11825874\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.10662746555843508,
+      "nr_plus": 820,
+      "nr_minus": 147,
+      "sum_plus": 1.0105289220809937,
+      "sum_minus": -0.01052898727357387,
+      "tot_cells": 1016,
+      "sensibility": 0.09686909569345015,
+      "sensibility2": 3.175858974456787,
+      "random_weights": {
+        "educ": {
+          "Coef": -0.13445527083225225,
+          "SE": 0.07136021124964388,
+          "tstat": -1.8841770291553508,
+          "Correlation": -0.11825873658726156
+        }
+      },
+      "other_treatments": []
+    },
+    "wp_feTR_ctrl_w": {
+      "command": "twowayfeweights lwage nr year union, type(feTR) summary_measures controls(hours married) weight(wt) test_random_weights(educ exper)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.0979, estimates a weighted sum of 1015 ATTs.\n831 ATTs receive a positive weight, and 184 receive a negative weight.\n1016 (g,t) cells receive the treatment, but the ATTs of 1 cells receive a weight equal to zero.\n------------------------------------------------\nTreat. var: union       # ATTs      Σ weights\n------------------------------------------------\nPositive weights        831         1.0117\nNegative weights        184         -0.0117\n------------------------------------------------\nTotal                   1015        1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.0979\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0871\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    2.5914\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[2,4]\n              Coef           SE       t-stat  Correlation\n educ   -.13860738    .06888104   -2.0122719   -.12589627\nexper   -.18929724     .1028961   -1.8396931   -.08125612\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.09790738408745508,
+      "nr_plus": 831,
+      "nr_minus": 184,
+      "sum_plus": 1.0117449760437012,
+      "sum_minus": -0.01174498628824949,
+      "tot_cells": 1016,
+      "sensibility": 0.0871118068599129,
+      "sensibility2": 2.5913751125335693,
+      "random_weights": {
+        "educ": {
+          "Coef": -0.13860738179084545,
+          "SE": 0.06888103889835585,
+          "tstat": -2.0122719402560274,
+          "Correlation": -0.12589626933096124
+        },
+        "exper": {
+          "Coef": -0.18929724156625857,
+          "SE": 0.10289609846762834,
+          "tstat": -1.8396930922100267,
+          "Correlation": -0.08125612211171727
+        }
+      },
+      "other_treatments": []
+    },
+    "wp_feTR_ot": {
+      "command": "twowayfeweights lwage nr year union, type(feTR) summary_measures other_treatments(married) test_random_weights(educ)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.1038, estimates the sum of several terms.\n\nThe first term is a weighted sum of 1016 ATTs of the treatment.\n852 ATTs receive a positive weight, and 164 receive a negative weight.\n------------------------------------------------\nTreat. var: union       # ATTs      Σ weights\n------------------------------------------------\nPositive weights        852         1.0117\nNegative weights        164         -0.0117\n------------------------------------------------\nTotal                   1016        1.0000\n------------------------------------------------\n\nThe next term is a weighted sum of 1914 ATTs of treatment 1 included in the other_treatments option.\n917 ATTs receive a positive weight, and 997 receive a negative weight.\n------------------------------------------------\nOther treat.: married   # ATTs      Σ weights\n------------------------------------------------\nPositive weights        917         0.4828\nNegative weights        997         -0.4828\n------------------------------------------------\nTotal                   1914        0.0000\n------------------------------------------------\n\nRegression of variables possibly correlated with the treatment effect on the weights attached to the treatment\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\neduc   -.13467696    .07124164   -1.8904248    -.1185583\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.10383175982940744,
+      "nr_plus": 852,
+      "nr_minus": 164,
+      "sum_plus": 1.0116517543792725,
+      "sum_minus": -0.01165175344794988,
+      "tot_cells": 1016,
+      "sensibility": null,
+      "sensibility2": null,
+      "random_weights": {
+        "educ": {
+          "Coef": -0.1346769634175665,
+          "SE": 0.0712416394083452,
+          "tstat": -1.890424820877866,
+          "Correlation": -0.11855829625746984
+        }
+      },
+      "other_treatments": [
+        {
+          "nr_plus": 917,
+          "nr_minus": 997,
+          "sum_plus": 0.4827791154384613,
+          "sum_minus": -0.4827791154384613,
+          "tot_cells": 1914
+        }
+      ]
+    },
+    "wp_feTR_ot_ctrl_w": {
+      "command": "twowayfeweights lwage nr year union, type(feTR) summary_measures controls(hours) weight(wt) other_treatments(married south) test_random_weights(educ)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.0990, estimates the sum of several terms.\n\nThe first term is a weighted sum of 1016 ATTs of the treatment.\n830 ATTs receive a positive weight, and 186 receive a negative weight.\n------------------------------------------------\nTreat. var: union       # ATTs      Σ weights\n------------------------------------------------\nPositive weights        830         1.0117\nNegative weights        186         -0.0117\n------------------------------------------------\nTotal                   1016        1.0000\n------------------------------------------------\n\nThe next term is a weighted sum of 1914 ATTs of treatment 1 included in the other_treatments option.\n862 ATTs receive a positive weight, and 1052 receive a negative weight.\n------------------------------------------------\nOther treat.: married   # ATTs      Σ weights\n------------------------------------------------\nPositive weights        862         0.4873\nNegative weights        1052        -0.4873\n------------------------------------------------\nTotal                   1914        0.0000\n------------------------------------------------\n\nThe next term is a weighted sum of 1529 ATTs of treatment 2 included in the other_treatments option.\n768 ATTs receive a positive weight, and 761 receive a negative weight.\n------------------------------------------------\nOther treat.: south     # ATTs      Σ weights\n------------------------------------------------\nPositive weights        768         0.3698\nNegative weights        761         -0.3698\n------------------------------------------------\nTotal                   1529        0.0000\n------------------------------------------------\n\nRegression of variables possibly correlated with the treatment effect on the weights attached to the treatment\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\neduc   -.13866343    .06899447   -2.0097759   -.12594082\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.0989988677504517,
+      "nr_plus": 830,
+      "nr_minus": 186,
+      "sum_plus": 1.011693239212036,
+      "sum_minus": -0.01169324107468128,
+      "tot_cells": 1016,
+      "sensibility": null,
+      "sensibility2": null,
+      "random_weights": {
+        "educ": {
+          "Coef": -0.13866342813997304,
+          "SE": 0.06899447248269244,
+          "tstat": -2.009775901609471,
+          "Correlation": -0.12594081849149288
+        }
+      },
+      "other_treatments": [
+        {
+          "nr_plus": 862,
+          "nr_minus": 1052,
+          "sum_plus": 0.48729139566421514,
+          "sum_minus": -0.48729139566421514,
+          "tot_cells": 1914
+        },
+        {
+          "nr_plus": 768,
+          "nr_minus": 761,
+          "sum_plus": 0.3698151409626007,
+          "sum_minus": -0.3698151409626007,
+          "tot_cells": 1529
+        }
+      ]
+    },
+    "wp_fdTR": {
+      "command": "twowayfeweights diff_lwage nr year diff_union union, type(fdTR) summary_measures test_random_weights(educ)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.0601, estimates a weighted sum of 1016 ATTs.\n611 ATTs receive a positive weight, and 405 receive a negative weight.\n------------------------------------------------\nTreat. var: diff_union  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        611         1.0476\nNegative weights        405         -0.0476\n------------------------------------------------\nTotal                   1016        1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.0601\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0321\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:    0.5799\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\neduc   -.06649017    .02893837   -2.2976473    -.0994798\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.06009594843757971,
+      "nr_plus": 611,
+      "nr_minus": 405,
+      "sum_plus": 1.0476360321044922,
+      "sum_minus": -0.04763605073094368,
+      "tot_cells": 1016,
+      "sensibility": 0.03209514037034917,
+      "sensibility2": 0.5799132585525513,
+      "random_weights": {
+        "educ": {
+          "Coef": -0.06649016798106525,
+          "SE": 0.02893837069199653,
+          "tstat": -2.2976472548765288,
+          "Correlation": -0.09947980066215656
+        }
+      },
+      "other_treatments": []
+    },
+    "wp_fdTR_ctrl_w": {
+      "command": "twowayfeweights diff_lwage nr year diff_union union, type(fdTR) summary_measures controls(hours) weight(wt) test_random_weights(educ)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.0776, estimates a weighted sum of 1016 ATTs.\n612 ATTs receive a positive weight, and 404 receive a negative weight.\n------------------------------------------------\nTreat. var: diff_union  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        612         1.0480\nNegative weights        404         -0.0480\n------------------------------------------------\nTotal                   1016        1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.0776\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0397\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:    0.7201\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\neduc   -.06724739    .02768205   -2.4292779   -.10634003\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.07760952163178325,
+      "nr_plus": 612,
+      "nr_minus": 404,
+      "sum_plus": 1.0479893684387207,
+      "sum_minus": -0.04798943549394607,
+      "tot_cells": 1016,
+      "sensibility": 0.03966264997029185,
+      "sensibility2": 0.7200883626937865,
+      "random_weights": {
+        "educ": {
+          "Coef": -0.06724739064704417,
+          "SE": 0.0276820494748913,
+          "tstat": -2.429277886669489,
+          "Correlation": -0.10634003328065868
+        }
+      },
+      "other_treatments": []
+    },
+    "wp_feS": {
+      "command": "twowayfeweights lwage nr year union, type(feS) summary_measures test_random_weights(educ)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.1066, estimates a weighted sum of 228 ATTs.\n228 ATTs receive a positive weight, and 0 receive a negative weight.\n------------------------------------------------\nTreat. var: union       # ATTs      Σ weights\n------------------------------------------------\nPositive weights        228         1.0000\nNegative weights        0           0.0000\n------------------------------------------------\nTotal                   228         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.1066\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.1555\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\neduc    .11004248    .14939977    .73656395    .04569714\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.10662746555843508,
+      "nr_plus": 228,
+      "nr_minus": 0,
+      "sum_plus": 1,
+      "sum_minus": 0,
+      "tot_cells": 228,
+      "sensibility": 0.15553663040771465,
+      "sensibility2": null,
+      "random_weights": {
+        "educ": {
+          "Coef": 0.11004248180275358,
+          "SE": 0.14939976595796503,
+          "tstat": 0.7365639503994607,
+          "Correlation": 0.04569714254618331
+        }
+      },
+      "other_treatments": []
+    },
+    "wp_feS_ctrl_w": {
+      "command": "twowayfeweights lwage nr year union, type(feS) summary_measures controls(hours married) weight(wt) test_random_weights(educ)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.0979, estimates a weighted sum of 228 ATTs.\n228 ATTs receive a positive weight, and 0 receive a negative weight.\n------------------------------------------------\nTreat. var: union       # ATTs      Σ weights\n------------------------------------------------\nPositive weights        228         1.0000\nNegative weights        0           0.0000\n------------------------------------------------\nTotal                   228         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.0979\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.1143\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\neduc    .12252659    .10384546    1.1798936    .06419959\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.09790738408745508,
+      "nr_plus": 228,
+      "nr_minus": 0,
+      "sum_plus": 1,
+      "sum_minus": 0,
+      "tot_cells": 228,
+      "sensibility": 0.114261231740038,
+      "sensibility2": null,
+      "random_weights": {
+        "educ": {
+          "Coef": 0.12252658795861328,
+          "SE": 0.10384545653588348,
+          "tstat": 1.179893584619897,
+          "Correlation": 0.06419958561999833
+        }
+      },
+      "other_treatments": []
+    },
+    "wp_fdS": {
+      "command": "twowayfeweights diff_lwage nr year diff_union, type(fdS) summary_measures test_random_weights(educ)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.0601, estimates a weighted sum of 228 ATTs.\n228 ATTs receive a positive weight, and 0 receive a negative weight.\n------------------------------------------------\nTreat. var: diff_union  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        228         1.0000\nNegative weights        0           0.0000\n------------------------------------------------\nTotal                   228         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.0601\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    2.2081\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\neduc    7.0513258    4.4381053    1.5888144    .11625119\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.0600959484375798,
+      "nr_plus": 228,
+      "nr_minus": 0,
+      "sum_plus": 1,
+      "sum_minus": 0,
+      "tot_cells": 228,
+      "sensibility": 2.2080598442151644,
+      "sensibility2": null,
+      "random_weights": {
+        "educ": {
+          "Coef": 7.051325775936697,
+          "SE": 4.4381053329572735,
+          "tstat": 1.5888144257356187,
+          "Correlation": 0.11625118835462377
+        }
+      },
+      "other_treatments": []
+    },
+    "wp_fdS_ctrl_w": {
+      "command": "twowayfeweights diff_lwage nr year diff_union, type(fdS) summary_measures controls(hours) weight(wt) test_random_weights(educ)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.0776, estimates a weighted sum of 228 ATTs.\n228 ATTs receive a positive weight, and 0 receive a negative weight.\n------------------------------------------------\nTreat. var: diff_union  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        228         1.0000\nNegative weights        0           0.0000\n------------------------------------------------\nTotal                   228         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.0776\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    2.7278\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\neduc    7.5566602    4.4677008     1.691398    .13146928\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.0776095216317832,
+      "nr_plus": 228,
+      "nr_minus": 0,
+      "sum_plus": 1,
+      "sum_minus": 0,
+      "tot_cells": 228,
+      "sensibility": 2.727758813745522,
+      "sensibility2": null,
+      "random_weights": {
+        "educ": {
+          "Coef": 7.556660213092415,
+          "SE": 4.46770080795732,
+          "tstat": 1.6913980004286369,
+          "Correlation": 0.13146927670663253
+        }
+      },
+      "other_treatments": []
+    },
+    "gz_feTR": {
+      "command": "twowayfeweights prestout cnty90 year numdailies, type(feTR) summary_measures",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.0029, estimates a weighted sum of 10378 ATTs.\n6180 ATTs receive a positive weight, and 4198 receive a negative weight.\n------------------------------------------------\nTreat. var: numdailies  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        6180        1.4740\nNegative weights        4198        -0.4740\n------------------------------------------------\nTotal                   10378       1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.0029\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0010\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    0.0019\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.00293933351466036,
+      "nr_plus": 6180,
+      "nr_minus": 4198,
+      "sum_plus": 1.4740132093429563,
+      "sum_minus": -0.47401317954063416,
+      "tot_cells": 10378,
+      "sensibility": 0.00095803315640302,
+      "sensibility2": 0.00194148544687777,
+      "random_weights": {},
+      "other_treatments": []
+    },
+    "gz_feTR_styr": {
+      "command": "twowayfeweights prestout cnty90 year numdailies, type(feTR) summary_measures controls(styr1-styr683)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to -0.0012, estimates a weighted sum of 10342 ATTs.\n6195 ATTs receive a positive weight, and 4147 receive a negative weight.\n10378 (g,t) cells receive the treatment, but the ATTs of 36 cells receive a weight equal to zero.\n------------------------------------------------\nTreat. var: numdailies  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        6195        1.5331\nNegative weights        4147        -0.5331\n------------------------------------------------\nTotal                   10342       1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =   -0.0012\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0004\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    0.0007\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": -0.00121216618497066,
+      "nr_plus": 6195,
+      "nr_minus": 4147,
+      "sum_plus": 1.5330616235733032,
+      "sum_minus": -0.5330615639686584,
+      "tot_cells": 10378,
+      "sensibility": 0.00036552987455294,
+      "sensibility2": 0.00072985957376658,
+      "random_weights": {},
+      "other_treatments": []
+    },
+    "gz_fdTR": {
+      "command": "twowayfeweights changeprestout cnty90 year changedailies numdailies, type(fdTR) summary_measures test_random_weights(year)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.0034, estimates a weighted sum of 10378 ATTs.\n4790 ATTs receive a positive weight, and 5588 receive a negative weight.\n------------------------------------------------\nTreat. var: changedail~s# ATTs      Σ weights\n------------------------------------------------\nPositive weights        4790        2.3040\nNegative weights        5588        -1.3040\n------------------------------------------------\nTotal                   10378       1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.0034\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0006\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:    0.0009\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\nyear   -.18159521    .05454841   -3.3290648   -.06568259\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.00342898816085801,
+      "nr_plus": 4790,
+      "nr_minus": 5588,
+      "sum_plus": 2.3040204048156734,
+      "sum_minus": -1.3040205240249634,
+      "tot_cells": 10378,
+      "sensibility": 0.00059861639318421,
+      "sensibility2": 0.00086900411406531,
+      "random_weights": {
+        "year": {
+          "Coef": -0.1815952051911796,
+          "SE": 0.05454841342811699,
+          "tstat": -3.3290648394473066,
+          "Correlation": -0.06568258610031771
+        }
+      },
+      "other_treatments": []
+    },
+    "gz_fdTR_styr": {
+      "command": "twowayfeweights changeprestout cnty90 year changedailies numdailies, type(fdTR) summary_measures controls(styr1-styr683)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.0026, estimates a weighted sum of 9876 ATTs.\n5371 ATTs receive a positive weight, and 4505 receive a negative weight.\n10378 (g,t) cells receive the treatment, but the ATTs of 502 cells receive a weight equal to zero.\n------------------------------------------------\nTreat. var: changedail~s# ATTs      Σ weights\n------------------------------------------------\nPositive weights        5371        2.4271\nNegative weights        4505        -1.4271\n------------------------------------------------\nTotal                   9876        1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.0026\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0004\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:    0.0006\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.00259067882301967,
+      "nr_plus": 5371,
+      "nr_minus": 4505,
+      "sum_plus": 2.4270834922790527,
+      "sum_minus": -1.4270833730697632,
+      "tot_cells": 10378,
+      "sensibility": 0.00043362677957286,
+      "sensibility2": 0.00063352100551128,
+      "random_weights": {},
+      "other_treatments": []
+    },
+    "gz_fdTR_styr_rw": {
+      "command": "twowayfeweights changeprestout cnty90 year changedailies numdailies, type(fdTR) summary_measures controls(styr1-styr683) test_random_weights(year)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.0026, estimates a weighted sum of 9876 ATTs.\n5371 ATTs receive a positive weight, and 4505 receive a negative weight.\n10378 (g,t) cells receive the treatment, but the ATTs of 502 cells receive a weight equal to zero.\n------------------------------------------------\nTreat. var: changedail~s# ATTs      Σ weights\n------------------------------------------------\nPositive weights        5371        2.4271\nNegative weights        4505        -1.4271\n------------------------------------------------\nTotal                   9876        1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.0026\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0004\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:    0.0006\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\nyear    -.1674271    .05101171   -3.2821307    -.0631614\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.00259067882301967,
+      "nr_plus": 5371,
+      "nr_minus": 4505,
+      "sum_plus": 2.4270834922790527,
+      "sum_minus": -1.4270833730697632,
+      "tot_cells": 10378,
+      "sensibility": 0.00043362677957286,
+      "sensibility2": 0.00063352100551128,
+      "random_weights": {
+        "year": {
+          "Coef": -0.16742710026169086,
+          "SE": 0.0510117097303395,
+          "tstat": -3.282130733252264,
+          "Correlation": -0.06316139628208636
+        }
+      },
+      "other_treatments": []
+    },
+    "gz_feS": {
+      "command": "twowayfeweights prestout cnty90 year numdailies, type(feS) summary_measures test_random_weights(year)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.0029, estimates a weighted sum of 4564 ATTs.\n3324 ATTs receive a positive weight, and 1240 receive a negative weight.\n------------------------------------------------\nTreat. var: numdailies  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        3324        1.2570\nNegative weights        1240        -0.2570\n------------------------------------------------\nTotal                   4564        1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.0029\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0009\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    0.0025\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\nyear    .78337499    .23368707    3.3522394     .1579331\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.00293933351466036,
+      "nr_plus": 3324,
+      "nr_minus": 1240,
+      "sum_plus": 1.25704824924469,
+      "sum_minus": -0.25704824924468994,
+      "tot_cells": 4564,
+      "sensibility": 0.00094167306041088,
+      "sensibility2": 0.00249267183244228,
+      "random_weights": {
+        "year": {
+          "Coef": 0.7833749928575366,
+          "SE": 0.2336870695941012,
+          "tstat": 3.352239361031856,
+          "Correlation": 0.1579331024804199
+        }
+      },
+      "other_treatments": []
+    },
+    "gz_fdS": {
+      "command": "twowayfeweights changeprestout cnty90 year changedailies, type(fdS) summary_measures test_random_weights(year)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.0034, estimates a weighted sum of 4564 ATTs.\n4564 ATTs receive a positive weight, and 0 receive a negative weight.\n------------------------------------------------\nTreat. var: changedail~s# ATTs      Σ weights\n------------------------------------------------\nPositive weights        4564        1.0000\nNegative weights        0           0.0000\n------------------------------------------------\nTotal                   4564        1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.0034\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0054\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\nyear    -1.983685    .98077569   -2.0225674   -.08203658\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.003428988160858,
+      "nr_plus": 4564,
+      "nr_minus": 0,
+      "sum_plus": 1,
+      "sum_minus": 0,
+      "tot_cells": 4564,
+      "sensibility": 0.00535532589286496,
+      "sensibility2": null,
+      "random_weights": {
+        "year": {
+          "Coef": -1.9836849591958103,
+          "SE": 0.9807756948253117,
+          "tstat": -2.022567412367544,
+          "Correlation": -0.08203657570695264
+        }
+      },
+      "other_treatments": []
+    },
+    "gz_feTR_w": {
+      "command": "twowayfeweights prestout cnty90 year numdailies, type(feTR) summary_measures weight(share_urb_baseline) test_random_weights(year)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.0072, estimates a weighted sum of 697 ATTs.\n336 ATTs receive a positive weight, and 361 receive a negative weight.\n------------------------------------------------\nTreat. var: numdailies  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        336         2.0571\nNegative weights        361         -1.0571\n------------------------------------------------\nTotal                   697         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.0072\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0018\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    0.0026\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\nyear   -.04606195    .45142741   -.10203623   -.01035145\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.00715424868867955,
+      "nr_plus": 336,
+      "nr_minus": 361,
+      "sum_plus": 2.057090997695923,
+      "sum_minus": -1.0570908784866333,
+      "tot_cells": 697,
+      "sensibility": 0.00180315244808593,
+      "sensibility2": 0.00264301593415439,
+      "random_weights": {
+        "year": {
+          "Coef": -0.04606195236582626,
+          "SE": 0.4514274113735051,
+          "tstat": -0.10203623263744437,
+          "Correlation": -0.01035144956055665
+        }
+      },
+      "other_treatments": []
+    },
+    "gz_feS_styr": {
+      "command": "twowayfeweights prestout cnty90 year numdailies, type(feS) summary_measures controls(styr1-styr683) test_random_weights(year)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to -0.0012, estimates a weighted sum of 4553 ATTs.\n3266 ATTs receive a positive weight, and 1287 receive a negative weight.\n4564 (g,t) cells receive the treatment, but the ATTs of 11 cells receive a weight equal to zero.\n------------------------------------------------\nTreat. var: numdailies  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        3266        1.2672\nNegative weights        1287        -0.2672\n------------------------------------------------\nTotal                   4553        1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =   -0.0012\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0004\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    0.0010\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\nyear    .76342319    .23022198    3.3160308    .16122305\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": -0.00121216618497066,
+      "nr_plus": 3266,
+      "nr_minus": 1287,
+      "sum_plus": 1.2671583890914917,
+      "sum_minus": -0.26715835928916926,
+      "tot_cells": 4564,
+      "sensibility": 0.00037072778327156,
+      "sensibility2": 0.00097291072597727,
+      "random_weights": {
+        "year": {
+          "Coef": 0.7634231890347387,
+          "SE": 0.23022198116945103,
+          "tstat": 3.3160308375282104,
+          "Correlation": 0.16122304543228128
+        }
+      },
+      "other_treatments": []
+    },
+    "gz_fdS_styr": {
+      "command": "twowayfeweights changeprestout cnty90 year changedailies, type(fdS) summary_measures controls(styr1-styr683) test_random_weights(year)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.0026, estimates a weighted sum of 4554 ATTs.\n4541 ATTs receive a positive weight, and 13 receive a negative weight.\n4564 (g,t) cells receive the treatment, but the ATTs of 10 cells receive a weight equal to zero.\n------------------------------------------------\nTreat. var: changedail~s# ATTs      Σ weights\n------------------------------------------------\nPositive weights        4541        1.0005\nNegative weights        13          -0.0005\n------------------------------------------------\nTotal                   4554        1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.0026\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0038\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:    0.1847\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\nyear   -1.6004085    .87960497   -1.8194628   -.07053317\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.00259067882301963,
+      "nr_plus": 4541,
+      "nr_minus": 13,
+      "sum_plus": 1.0005384683609009,
+      "sum_minus": -0.00053844321519136,
+      "tot_cells": 4564,
+      "sensibility": 0.003796695367483,
+      "sensibility2": 0.18471436202526093,
+      "random_weights": {
+        "year": {
+          "Coef": -1.6004085410736826,
+          "SE": 0.8796049709572603,
+          "tstat": -1.8194628201475291,
+          "Correlation": -0.0705331737072321
+        }
+      },
+      "other_treatments": []
+    },
+    "gz_feS_w": {
+      "command": "twowayfeweights prestout cnty90 year numdailies, type(feS) summary_measures weight(share_urb_baseline) test_random_weights(year)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.0072, estimates a weighted sum of 373 ATTs.\n249 ATTs receive a positive weight, and 124 receive a negative weight.\n------------------------------------------------\nTreat. var: numdailies  # ATTs      Σ weights\n------------------------------------------------\nPositive weights        249         1.3421\nNegative weights        124         -0.3421\n------------------------------------------------\nTotal                   373         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.0072\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.0025\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    0.0054\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\nyear    .52799803    .49144624     1.074376    .08824517\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.00715424868867955,
+      "nr_plus": 249,
+      "nr_minus": 124,
+      "sum_plus": 1.342067003250122,
+      "sum_minus": -0.34206703305244446,
+      "tot_cells": 373,
+      "sensibility": 0.00254788985150096,
+      "sensibility2": 0.00543819973245263,
+      "random_weights": {
+        "year": {
+          "Coef": 0.5279980289276008,
+          "SE": 0.49144623930923986,
+          "tstat": 1.074375967694324,
+          "Correlation": 0.08824517401216378
+        }
+      },
+      "other_treatments": []
+    },
+    "gz_fdS_w": {
+      "command": "twowayfeweights changeprestout cnty90 year changedailies, type(fdS) summary_measures weight(share_urb_baseline) test_random_weights(year)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to -0.0035, estimates a weighted sum of 373 ATTs.\n373 ATTs receive a positive weight, and 0 receive a negative weight.\n------------------------------------------------\nTreat. var: changedail~s# ATTs      Σ weights\n------------------------------------------------\nPositive weights        373         1.0000\nNegative weights        0           0.0000\n------------------------------------------------\nTotal                   373         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =   -0.0035\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.0061\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n             Coef           SE       t-stat  Correlation\nyear   -5.8733574    1.4989188    -3.918396   -.20046598\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": -0.00348672285482166,
+      "nr_plus": 373,
+      "nr_minus": 0,
+      "sum_plus": 1,
+      "sum_minus": 0,
+      "tot_cells": 373,
+      "sensibility": 0.00608048835328126,
+      "sensibility2": null,
+      "random_weights": {
+        "year": {
+          "Coef": -5.873357443128963,
+          "SE": 1.4989187884734008,
+          "tstat": -3.918396038727878,
+          "Correlation": -0.2004659786525899
+        }
+      },
+      "other_treatments": []
+    },
+    "sim_feTR": {
+      "command": "twowayfeweights Y g t D, type(feTR) summary_measures controls(x1 x2) weight(w) test_random_weights(z)",
+      "output": "The treatment variable in the regression varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) apply to two-way fixed effects regressions\nwith a group * period level treatment.\nThe command will replace the treatment by its average value in each group * period.\nThe results below apply to the two-way fixed effects regression with that treatment variable.\n\nThe control variable 1 varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fixed effects regressions\nwith controls apply to group * period level controls.\nThe command will replace control variable 1 by its average value in each group * period cell.\nThe results below apply to the regression with control variable 1 averaged at the group * period level.\n\n\nUnder the common trends assumption,\nthe TWFE coefficient beta, equal to 0.2695, estimates a weighted sum of 144 ATTs.\n124 ATTs receive a positive weight, and 20 receive a negative weight.\n------------------------------------------------\nTreat. var: D           # ATTs      Σ weights\n------------------------------------------------\nPositive weights        124         1.0679\nNegative weights        20          -0.0679\n------------------------------------------------\nTotal                   144         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.2695\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.3027\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    1.1274\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n          Coef           SE       t-stat  Correlation\nz   -.05211269    .09926773   -.52497111   -.04824379\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.26950420013447035,
+      "nr_plus": 124,
+      "nr_minus": 20,
+      "sum_plus": 1.0678510665893557,
+      "sum_minus": -0.06785103678703308,
+      "tot_cells": 144,
+      "sensibility": 0.3026781506804506,
+      "sensibility2": 1.1274493932724,
+      "random_weights": {
+        "z": {
+          "Coef": -0.05211268946361354,
+          "SE": 0.09926772880969846,
+          "tstat": -0.5249711068087027,
+          "Correlation": -0.04824378871650143
+        }
+      },
+      "other_treatments": []
+    },
+    "sim_feTR_ot": {
+      "command": "twowayfeweights Y g t D, type(feTR) summary_measures controls(x1) weight(w) other_treatments(D2) test_random_weights(z)",
+      "output": "The treatment variable in the regression varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) apply to two-way fixed effects regressions\nwith a group * period level treatment.\nThe command will replace the treatment by its average value in each group * period.\nThe results below apply to the two-way fixed effects regression with that treatment variable.\n\nThe other treatment variable 1 varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fixed effects regressions\nwith several treatments apply to group * period level treatments.\nThe command will replace other treatment variable 1 by its average value in each group * period cell.\nThe results below apply to the regression with other treatment variable 1 averaged at the group * period level.\n\nThe control variable 1 varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fixed effects regressions\nwith controls apply to group * period level controls.\nThe command will replace control variable 1 by its average value in each group * period cell.\nThe results below apply to the regression with control variable 1 averaged at the group * period level.\n\n\nUnder the common trends assumption,\nthe TWFE coefficient beta, equal to 0.2700, estimates the sum of several terms.\n\nThe first term is a weighted sum of 144 ATTs of the treatment.\n124 ATTs receive a positive weight, and 20 receive a negative weight.\n273 (g,t) cells receive the treatment, but the ATTs of 129 cells receive a weight equal to zero.\n------------------------------------------------\nTreat. var: D           # ATTs      Σ weights\n------------------------------------------------\nPositive weights        124         1.0682\nNegative weights        20          -0.0682\n------------------------------------------------\nTotal                   144         1.0000\n------------------------------------------------\n\nThe next term is a weighted sum of 220 ATTs of treatment 1 included in the other_treatments option.\n102 ATTs receive a positive weight, and 118 receive a negative weight.\n490 (g,t) cells receive the treatment, but the ATTs of 270 cells receive a weight equal to zero.\n------------------------------------------------\nOther treat.: D2        # ATTs      Σ weights\n------------------------------------------------\nPositive weights        102         0.2962\nNegative weights        118         -0.2962\n------------------------------------------------\nTotal                   220         0.0000\n------------------------------------------------\n\nRegression of variables possibly correlated with the treatment effect on the weights attached to the treatment\n\nB[1,4]\n          Coef           SE       t-stat  Correlation\nz   -.05206927    .09909698   -.52543755   -.04819352\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.2699528762390103,
+      "nr_plus": 124,
+      "nr_minus": 20,
+      "sum_plus": 1.0681700706481934,
+      "sum_minus": -0.06817012280225752,
+      "tot_cells": 273,
+      "sensibility": null,
+      "sensibility2": null,
+      "random_weights": {
+        "z": {
+          "Coef": -0.05206927380232889,
+          "SE": 0.09909697921051289,
+          "tstat": -0.5254375483203936,
+          "Correlation": -0.04819351614979021
+        }
+      },
+      "other_treatments": [
+        {
+          "nr_plus": 102,
+          "nr_minus": 118,
+          "sum_plus": 0.2961580157279968,
+          "sum_minus": -0.2961580157279968,
+          "tot_cells": 490
+        }
+      ]
+    },
+    "sim_fdTR": {
+      "command": "twowayfeweights dY g t dD D, type(fdTR) summary_measures controls(x1) weight(w) test_random_weights(z)",
+      "output": "The control variable 1 varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fixed effects regressions\nwith controls apply to group * period level controls.\nThe command will replace control variable 1 by its average value in each group * period cell.\nThe results below apply to the regression with control variable 1 averaged at the group * period level.\n\n\nUnder the common trends assumption,\nthe TWFE coefficient beta, equal to 0.3346, estimates a weighted sum of 141 ATTs.\n94 ATTs receive a positive weight, and 47 receive a negative weight.\n------------------------------------------------\nTreat. var: dD          # ATTs      Σ weights\n------------------------------------------------\nPositive weights        94          1.3600\nNegative weights        47          -0.3600\n------------------------------------------------\nTotal                   141         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.3346\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.1520\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:    0.3579\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n          Coef           SE       t-stat  Correlation\nz   -.01326226    .04177862   -.31744142   -.03005634\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.33458381898999023,
+      "nr_plus": 94,
+      "nr_minus": 47,
+      "sum_plus": 1.3600085973739624,
+      "sum_minus": -0.3600085377693176,
+      "tot_cells": 141,
+      "sensibility": 0.15203546084719044,
+      "sensibility2": 0.3579004406929016,
+      "random_weights": {
+        "z": {
+          "Coef": -0.01326226446699478,
+          "SE": 0.04177861983845456,
+          "tstat": -0.31744142143220616,
+          "Correlation": -0.03005634167801151
+        }
+      },
+      "other_treatments": []
+    },
+    "sim_feS": {
+      "command": "twowayfeweights Y g t D, type(feS) summary_measures controls(x1) weight(w) test_random_weights(z)",
+      "output": "The treatment variable in the regression varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) apply to two-way fixed effects regressions\nwith a group * period level treatment.\nThe command will replace the treatment by its average value in each group * period.\nThe results below apply to the two-way fixed effects regression with that treatment variable.\n\nThe control variable 1 varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fixed effects regressions\nwith controls apply to group * period level controls.\nThe command will replace control variable 1 by its average value in each group * period cell.\nThe results below apply to the regression with control variable 1 averaged at the group * period level.\n\n\nUnder the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.2695, estimates a weighted sum of 141 ATTs.\n103 ATTs receive a positive weight, and 38 receive a negative weight.\n------------------------------------------------\nTreat. var: D           # ATTs      Σ weights\n------------------------------------------------\nPositive weights        103         1.0675\nNegative weights        38          -0.0675\n------------------------------------------------\nTotal                   141         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.2695\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.2158\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    1.0400\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n          Coef           SE       t-stat  Correlation\nz    .03094547    .07039546    .43959468    .04086628\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.26950420013447046,
+      "nr_plus": 103,
+      "nr_minus": 38,
+      "sum_plus": 1.0674711465835571,
+      "sum_minus": -0.06747106462717056,
+      "tot_cells": 141,
+      "sensibility": 0.21581738585693536,
+      "sensibility2": 1.0400242805480957,
+      "random_weights": {
+        "z": {
+          "Coef": 0.03094546810956285,
+          "SE": 0.07039545648846017,
+          "tstat": 0.4395946791627909,
+          "Correlation": 0.0408662764908118
+        }
+      },
+      "other_treatments": []
+    },
+    "sim_fdS": {
+      "command": "twowayfeweights dY g t dD, type(fdS) summary_measures controls(x1) weight(w) test_random_weights(z)",
+      "output": "The control variable 1 varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fixed effects regressions\nwith controls apply to group * period level controls.\nThe command will replace control variable 1 by its average value in each group * period cell.\nThe results below apply to the regression with control variable 1 averaged at the group * period level.\n\n\nUnder the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.3346, estimates a weighted sum of 148 ATTs.\n126 ATTs receive a positive weight, and 22 receive a negative weight.\n------------------------------------------------\nTreat. var: dD          # ATTs      Σ weights\n------------------------------------------------\nPositive weights        126         1.0014\nNegative weights        22          -0.0014\n------------------------------------------------\nTotal                   148         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.3346\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.7307\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:   24.5504\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n          Coef           SE       t-stat  Correlation\nz    -.1082642    .18439209   -.58714126   -.05171297\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.33458381898999007,
+      "nr_plus": 126,
+      "nr_minus": 22,
+      "sum_plus": 1.0013700723648071,
+      "sum_minus": -0.00137011788319796,
+      "tot_cells": 148,
+      "sensibility": 0.7307371068282392,
+      "sensibility2": 24.550352096557617,
+      "random_weights": {
+        "z": {
+          "Coef": -0.10826420080438062,
+          "SE": 0.18439208590598163,
+          "tstat": -0.5871412553984702,
+          "Correlation": -0.05171297249726471
+        }
+      },
+      "other_treatments": []
+    },
+    "sim_feTR_now": {
+      "command": "twowayfeweights Y g t D, type(feTR) summary_measures",
+      "output": "The treatment variable in the regression varies within some group * period cells.\nThe results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) apply to two-way fixed effects regressions\nwith a group * period level treatment.\nThe command will replace the treatment by its average value in each group * period.\nThe results below apply to the two-way fixed effects regression with that treatment variable.\n\n\nUnder the common trends assumption,\nthe TWFE coefficient beta, equal to 0.2955, estimates a weighted sum of 145 ATTs.\n122 ATTs receive a positive weight, and 23 receive a negative weight.\n------------------------------------------------\nTreat. var: D           # ATTs      Σ weights\n------------------------------------------------\nPositive weights        122         1.0659\nNegative weights        23          -0.0659\n------------------------------------------------\nTotal                   145         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.2955\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.3316\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    1.2311\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.29548374801024185,
+      "nr_plus": 122,
+      "nr_minus": 23,
+      "sum_plus": 1.0658743381500244,
+      "sum_minus": -0.06587439030408859,
+      "tot_cells": 145,
+      "sensibility": 0.33156244088648273,
+      "sensibility2": 1.2310770750045776,
+      "random_weights": {},
+      "other_treatments": []
+    },
+    "sim_fdTR_now": {
+      "command": "twowayfeweights dY g t dD D, type(fdTR) summary_measures",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.3327, estimates a weighted sum of 141 ATTs.\n90 ATTs receive a positive weight, and 51 receive a negative weight.\n------------------------------------------------\nTreat. var: dD          # ATTs      Σ weights\n------------------------------------------------\nPositive weights        90          1.3426\nNegative weights        51          -0.3426\n------------------------------------------------\nTotal                   141         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.3327\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.1591\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:    0.3878\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.332681284351569,
+      "nr_plus": 90,
+      "nr_minus": 51,
+      "sum_plus": 1.342590570449829,
+      "sum_minus": -0.3425905406475067,
+      "tot_cells": 141,
+      "sensibility": 0.15909032277353494,
+      "sensibility2": 0.38784876465797424,
+      "random_weights": {},
+      "other_treatments": []
+    },
+    "sim_fdS_now": {
+      "command": "twowayfeweights dY g t dD, type(fdS) summary_measures",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.3327, estimates a weighted sum of 149 ATTs.\n128 ATTs receive a positive weight, and 21 receive a negative weight.\n------------------------------------------------\nTreat. var: dD          # ATTs      Σ weights\n------------------------------------------------\nPositive weights        128         1.0012\nNegative weights        21          -0.0012\n------------------------------------------------\nTotal                   149         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.3327\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.7427\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:   27.8319\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.3326812843515689,
+      "nr_plus": 128,
+      "nr_minus": 21,
+      "sum_plus": 1.0012269020080566,
+      "sum_minus": -0.00122693635057657,
+      "tot_cells": 149,
+      "sensibility": 0.7426510083139618,
+      "sensibility2": 27.831937789916992,
+      "random_weights": {},
+      "other_treatments": []
+    },
+    "simcell_feTR": {
+      "command": "twowayfeweights Y g t D, type(feTR) summary_measures controls(x1 x2) weight(w) test_random_weights(z)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.2597, estimates a weighted sum of 144 ATTs.\n124 ATTs receive a positive weight, and 20 receive a negative weight.\n------------------------------------------------\nTreat. var: D           # ATTs      Σ weights\n------------------------------------------------\nPositive weights        124         1.0674\nNegative weights        20          -0.0674\n------------------------------------------------\nTotal                   144         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.2597\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.2929\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    1.0919\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n          Coef           SE       t-stat  Correlation\nz    .11604111    .07048741    1.6462673    .13585509\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.2597464854818418,
+      "nr_plus": 124,
+      "nr_minus": 20,
+      "sum_plus": 1.0674145221710205,
+      "sum_minus": -0.0674144998192787,
+      "tot_cells": 144,
+      "sensibility": 0.2928787437494287,
+      "sensibility2": 1.091868877410889,
+      "random_weights": {
+        "z": {
+          "Coef": 0.11604111086270578,
+          "SE": 0.07048740538185831,
+          "tstat": 1.6462673045498686,
+          "Correlation": 0.13585509063114015
+        }
+      },
+      "other_treatments": []
+    },
+    "simcell_feS": {
+      "command": "twowayfeweights Y g t D, type(feS) summary_measures controls(x1) weight(w) test_random_weights(z)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.2597, estimates a weighted sum of 141 ATTs.\n105 ATTs receive a positive weight, and 36 receive a negative weight.\n------------------------------------------------\nTreat. var: D           # ATTs      Σ weights\n------------------------------------------------\nPositive weights        105         1.0567\nNegative weights        36          -0.0567\n------------------------------------------------\nTotal                   141         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.2597\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.2133\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    1.1253\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n          Coef           SE       t-stat  Correlation\nz    .06171733    .05494714    1.1232129    .11160512\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.2597464854818418,
+      "nr_plus": 105,
+      "nr_minus": 36,
+      "sum_plus": 1.0567045211791992,
+      "sum_minus": -0.05670450627803802,
+      "tot_cells": 141,
+      "sensibility": 0.2133370742435836,
+      "sensibility2": 1.125303030014038,
+      "random_weights": {
+        "z": {
+          "Coef": 0.06171732926347024,
+          "SE": 0.05494713540010837,
+          "tstat": 1.1232128629466007,
+          "Correlation": 0.111605121672194
+        }
+      },
+      "other_treatments": []
+    },
+    "simcell_feS_now": {
+      "command": "twowayfeweights Y g t D, type(feS) summary_measures",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.2696, estimates a weighted sum of 141 ATTs.\n103 ATTs receive a positive weight, and 38 receive a negative weight.\n------------------------------------------------\nTreat. var: D           # ATTs      Σ weights\n------------------------------------------------\nPositive weights        103         1.0611\nNegative weights        38          -0.0611\n------------------------------------------------\nTotal                   141         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fe) =    0.2696\nmin σ(Δ) compatible with β_fe and Δ_TR = 0:    0.2865\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fe in all (g,t) cells:    1.2413\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.26960594697794843,
+      "nr_plus": 103,
+      "nr_minus": 38,
+      "sum_plus": 1.0610672235488892,
+      "sum_minus": -0.06106715276837348,
+      "tot_cells": 141,
+      "sensibility": 0.28652123990146167,
+      "sensibility2": 1.2412700653076172,
+      "random_weights": {},
+      "other_treatments": []
+    },
+    "simcell_fdTR": {
+      "command": "twowayfeweights dY g t dD D, type(fdTR) summary_measures weight(w) test_random_weights(z)",
+      "output": "Under the common trends assumption,\nthe TWFE coefficient beta, equal to 0.3398, estimates a weighted sum of 144 ATTs.\n93 ATTs receive a positive weight, and 51 receive a negative weight.\n------------------------------------------------\nTreat. var: dD          # ATTs      Σ weights\n------------------------------------------------\nPositive weights        93          1.3710\nNegative weights        51          -0.3710\n------------------------------------------------\nTotal                   144         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.3398\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.1544\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:    0.3631\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n          Coef           SE       t-stat  Correlation\nz    .00464073    .02449541    .18945306    .01347917\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.33979142291614484,
+      "nr_plus": 93,
+      "nr_minus": 51,
+      "sum_plus": 1.371049165725708,
+      "sum_minus": -0.3710491061210632,
+      "tot_cells": 144,
+      "sensibility": 0.15443224646648712,
+      "sensibility2": 0.36305421590805054,
+      "random_weights": {
+        "z": {
+          "Coef": 0.00464073105479848,
+          "SE": 0.02449541361986193,
+          "tstat": 0.18945305953256408,
+          "Correlation": 0.01347916641991739
+        }
+      },
+      "other_treatments": []
+    },
+    "simcell_fdS": {
+      "command": "twowayfeweights dY g t dD, type(fdS) summary_measures weight(w) test_random_weights(z)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.3398, estimates a weighted sum of 146 ATTs.\n125 ATTs receive a positive weight, and 21 receive a negative weight.\n------------------------------------------------\nTreat. var: dD          # ATTs      Σ weights\n------------------------------------------------\nPositive weights        125         1.0014\nNegative weights        21          -0.0014\n------------------------------------------------\nTotal                   146         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.3398\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.7404\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:   24.9665\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\nRegression of variables possibly correlated with the treatment effect on the weights\n\nB[1,4]\n          Coef           SE       t-stat  Correlation\nz   -.14606791    .11843639   -1.2333027    -.0946385\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.3397914229161449,
+      "nr_plus": 125,
+      "nr_minus": 21,
+      "sum_plus": 1.0013781785964966,
+      "sum_minus": -0.00137817906215786,
+      "tot_cells": 146,
+      "sensibility": 0.7404462763571974,
+      "sensibility2": 24.966522216796875,
+      "random_weights": {
+        "z": {
+          "Coef": -0.1460679111035509,
+          "SE": 0.11843638680480656,
+          "tstat": -1.2333026618270913,
+          "Correlation": -0.09463849582202485
+        }
+      },
+      "other_treatments": []
+    },
+    "simcell_fdS_now": {
+      "command": "twowayfeweights dY g t dD, type(fdS) summary_measures controls(x1 x2)",
+      "output": "Under the common trends assumption and\nthe assumption that groups' treatment effects do not change over time,\nthe TWFE coefficient beta, equal to 0.3361, estimates a weighted sum of 146 ATTs.\n122 ATTs receive a positive weight, and 24 receive a negative weight.\n------------------------------------------------\nTreat. var: dD          # ATTs      Σ weights\n------------------------------------------------\nPositive weights        122         1.0010\nNegative weights        24          -0.0010\n------------------------------------------------\nTotal                   146         1.0000\n------------------------------------------------\n\nSummary Measures:\nTWFE coefficient (β_fd) =    0.3361\nmin σ(Δ) compatible with β_fd and Δ_TR = 0:    0.7528\nmin σ(Δ) compatible with treatment effect of opposite sign than β_fd in all (g,t) cells:   35.1039\nReference: Corollary 1, de Chaisemartin, C and D'Haultfoeuille, X (2020a)\n\n\nThe development of this package was funded by the European Union (ERC, REALLYCREDIBLE,GA N°101043899).",
+      "beta": 0.336134332496398,
+      "nr_plus": 122,
+      "nr_minus": 24,
+      "sum_plus": 1.0009620189666748,
+      "sum_minus": -0.00096202554414048,
+      "tot_cells": 146,
+      "sensibility": 0.7528107792366399,
+      "sensibility2": 35.10391998291016,
+      "random_weights": {},
+      "other_treatments": []
+    }
+  }
+}

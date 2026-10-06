@@ -47,7 +47,7 @@ def twowayfeweights(
 
     Parameters
     ----------
-    data : pandas.DataFrame (or anything convertible to one, e.g. a polars DataFrame)
+    data : pandas.DataFrame
     Y : str
         Outcome variable (first-differenced outcome for ``fdTR``/``fdS``).
     G : str
@@ -133,6 +133,7 @@ def twowayfeweights(
 
     # ------------------------------------------------------------------ (g,t)-level variables
     cell0, n0 = _cells(g_raw, t_raw)
+    notes: list[str] = []  # printed before the results, as Stata does
     m, varies = group_mean_replace(d[:, None], cell0, n0)
     if varies[0]:
         warnings.warn(
@@ -140,18 +141,21 @@ def twowayfeweights(
             "The command replaces the treatment by its average value in each group * period cell.",
             stacklevel=2,
         )
+        notes.append(_TREATMENT_NOTE)
         d = m[:, 0]
-    for name, M in (("control", X), ("other treatment", OT)):
+    # Stata checks the other treatments before the controls, and numbers only the variables that vary.
+    for name, M in (("other treatment", OT), ("control", X)):
         if M.shape[1] == 0:
             continue
         m, varies = group_mean_replace(M, cell0, n0)
-        for j in np.flatnonzero(varies):
+        for count, j in enumerate(np.flatnonzero(varies), start=1):
             var = (controls if name == "control" else ots)[j]
             warnings.warn(
                 f"The {name} variable {var!r} varies within some group * period cells; "
                 "it is replaced by its average value in each group * period cell.",
                 stacklevel=2,
             )
+            notes.append(_variable_note(name, count))
             M[:, j] = m[:, j]
     # Variables used in test_random_weights see the (g,t)-averaged controls, as in Stata.
     for v in rw_vars:
@@ -254,6 +258,7 @@ def twowayfeweights(
         other_treatments=other_results,
         weights=wdf,
         summary_measures=summary_measures,
+        notes=notes,
     )
     if path is not None:
         _save(wdf, Path(path))
@@ -447,17 +452,35 @@ def _as_list(x) -> list[str]:
     return list(x)
 
 
+_TREATMENT_NOTE = (
+    "The treatment variable in the regression varies within some group * period cells.\n"
+    "The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) apply to two-way fixed effects regressions\n"
+    "with a group * period level treatment.\n"
+    "The command will replace the treatment by its average value in each group * period.\n"
+    "The results below apply to the two-way fixed effects regression with that treatment variable."
+)
+
+
+def _variable_note(name: str, count: int) -> str:
+    """Stata's message for a control (or other treatment) that varies within (g,t) cells."""
+    scope = "controls apply to group * period level controls" if name == "control" else (
+        "several treatments apply to group * period level treatments")
+    return (
+        f"The {name} variable {count} varies within some group * period cells.\n"
+        "The results in de Chaisemartin, C. and D'Haultfoeuille, X. (2020) on two-way fixed effects regressions\n"
+        f"with {scope}.\n"
+        f"The command will replace {name} variable {count} by its average value in each group * period cell.\n"
+        f"The results below apply to the regression with {name} variable {count} averaged at the group * period level."
+    )
+
+
 def _to_pandas(data) -> pd.DataFrame:
     if isinstance(data, pd.DataFrame):
         return data
-    if hasattr(data, "to_pandas"):
-        try:
-            return data.to_pandas()
-        except ImportError:  # e.g. polars without pyarrow installed
-            if hasattr(data, "to_dict"):
-                return pd.DataFrame(data.to_dict(as_series=False))
-            raise
-    return pd.DataFrame(data)
+    raise TypeError(
+        f"data must be a pandas DataFrame, got {type(data).__name__}. "
+        "Convert it first, e.g. with pd.DataFrame(data) or data.to_pandas()."
+    )
 
 
 def _num(s: pd.Series, name: str) -> np.ndarray:

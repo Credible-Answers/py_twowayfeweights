@@ -1,0 +1,43 @@
+site_name: twowayfeweights
+site_description: Weights attached to two-way fixed effects regressions (de Chaisemartin & D'Haultfoeuille, 2020), in Python.
+site_url: https://credible-answers.github.io/py_twowayfeweights/
+repo_url: https://github.com/Credible-Answers/py_twowayfeweights
+repo_name: Credible-Answers/py_twowayfeweights
+edit_uri: edit/main/docs/
+
+nav:
+  - Home: index.md
+  - Arguments: arguments.md
+  - Outputs: outputs.md
+  - Examples: examples.md
+  - Comparison with Stata: stata.md
+
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - tables
+  - toc:
+      permalink: true

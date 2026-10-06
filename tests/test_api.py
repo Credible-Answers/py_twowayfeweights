@@ -20,23 +20,6 @@ def wagepan():
     return tw.load_wagepan()
 
 
-def test_wagepan_r_package_values(wagepan):
-    """Known values from the R package's tinytest suite (tests/test_wagepan.R)."""
-    r = twowayfeweights(wagepan, "lwage", "nr", "year", "union", type="feTR", summary_measures=True,
-                        test_random_weights="educ")
-    assert (r.nr_plus, r.nr_minus, r.nr_weights, r.tot_cells) == (820, 147, 967, 1016)
-    np.testing.assert_allclose([r.beta, r.sum_plus, r.sum_minus, r.sensibility, r.sensibility2],
-                               [0.10662746641838491, 1.010529, -0.01052899, 0.0968691, 3.175859], rtol=1e-4)
-    np.testing.assert_allclose(r.mat.loc["educ"].to_numpy(),
-                               [-0.13445527172928173, 0.07136021078287243, -1.88417705405031, -0.11825873818614765],
-                               rtol=1e-5)
-    r = twowayfeweights(wagepan, "diff_lwage", "nr", "year", "diff_union", type="fdTR", D0="union",
-                        summary_measures=True, test_random_weights="educ")
-    assert (r.nr_plus, r.nr_minus, r.tot_cells) == (611, 405, 1016)
-    np.testing.assert_allclose([r.beta, r.sum_plus, r.sensibility, r.sensibility2],
-                               [0.06009597, 1.047636, 0.03209515, 0.5799135], rtol=1e-5)
-
-
 def test_did_book_chapter5():
     """Numbers printed in https://anzonyquispe.github.io/did_book/chapters/ch05.html (Stata output)."""
     df = load("gentzkow")
@@ -91,12 +74,9 @@ def test_feS_micro_equals_collapsed():
     assert a.to_dict() == pytest.approx(b.to_dict(), rel=1e-8, nan_ok=True)
 
 
-def test_polars_input():
-    pl = pytest.importorskip("polars")
-    df = tw.load_wagepan()
-    a = twowayfeweights(df, "lwage", "nr", "year", "union")
-    b = twowayfeweights(pl.from_pandas(df), "lwage", "nr", "year", "union")
-    assert a.to_dict() == b.to_dict()
+def test_non_pandas_input_rejected(wagepan):
+    with pytest.raises(TypeError, match="pandas DataFrame"):
+        twowayfeweights(wagepan.to_dict("list"), "lwage", "nr", "year", "union")
 
 
 def test_normalization_warning():

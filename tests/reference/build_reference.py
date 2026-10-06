@@ -1,33 +1,38 @@
-"""Regenerate the Stata (and R) reference fixtures used by the parity tests.
+"""Regenerate the Stata results that the parity tests compare against.
 
 Usage (from the repository root)::
 
     python tests/reference/build_reference.py --stata "C:/Program Files/Stata18/StataMP-64.exe"
-    python tests/reference/build_reference.py --r Rscript
 
-Requires Stata with ``gtools`` installed, and/or R with the CRAN package ``TwoWayFEWeights``.
-The Stata program that is run is ``tests/reference/twowayfeweights.ado``.
+Requires Stata. The script runs the official command from SSC (``ssc install twowayfeweights``,
+installed automatically if missing, together with ``gtools``) on every case in ``tests/cases.py`` and
+writes:
+
+* ``tests/fixtures/stata/results.json``: for each case, the Stata command, every number it returns
+  and the text it prints;
+* ``tests/fixtures/stata/weights/<case>.csv.gz``: the (g,t) weights saved by Stata's ``path()`` option.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
+from datetime import date
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE.parent))
 
 from cases import CASES, DATA_DIR, FIXTURES, N_STYR, load, make_sim  # noqa: E402
 
 WORK = HERE / "work"
-ADO = HERE / "twowayfeweights.ado"  # Stata reference implementation (chaisemartinPackages/twowayfeweights)
+STATA_FIXTURES = FIXTURES / "stata"
 
 
 def prepare_data(gentzkow_source: Path | None) -> None:
@@ -48,9 +53,6 @@ def prepare_data(gentzkow_source: Path | None) -> None:
     g.to_stata(WORK / "gentzkow_raw.dta", write_index=False, version=118)
 
 
-# ---------------------------------------------------------------------- Stata
-
-
 def stata_do() -> str:
     q = lambda p: str(p).replace("\\", "/")  # noqa: E731
     out = WORK / "stata_out"
@@ -60,7 +62,10 @@ def stata_do() -> str:
         "set more off",
         "set maxvar 5000",
         f'cd "{q(WORK)}"',
-        f'qui do "{q(ADO)}"',
+        "cap which gtools",
+        "if _rc ssc install gtools",
+        "cap which twowayfeweights",
+        "if _rc ssc install twowayfeweights",
         # Gentzkow data with state-year dummies, built exactly as in the did_book chapter.
         'use "gentzkow_raw.dta", clear',
         "qui tab styr, gen(styr)",
@@ -116,88 +121,82 @@ def stata_do() -> str:
     return "\n".join(lines) + "\n"
 
 
+# ---------------------------------------------------------------------- collecting Stata's output
+
+
+def _num(x):
+    """JSON value of a Stata number (missing -> None, whole numbers -> int)."""
+    if x is None or (isinstance(x, float) and np.isnan(x)):
+        return None
+    x = float(x)
+    return int(x) if x.is_integer() and abs(x) < 2**53 else x
+
+
+def parse_log(text: str) -> dict[str, dict[str, str]]:
+    """Command and printed output of each case in Stata's log."""
+    text = re.sub(r"\n> ", "", text.replace("\r\n", "\n"))  # undo Stata's 80-column line wrapping
+    out = {}
+    for block in re.split(r"\nCASE: ", text)[1:]:
+        name = block.split("\n", 1)[0].strip()
+        m = re.search(r"\n\. cap noi (twowayfeweights[^\n]*)\n(.*?)\n\. if _rc == 0", block, re.S)
+        if m is None:
+            continue
+        command = re.sub(r'\s*path\("[^"]*"\)', "", m.group(1)).strip()
+        output = "\n".join(line.rstrip() for line in m.group(2).strip("\n").split("\n"))
+        out[name] = {"command": command, "output": output}
+    return out
+
+
+def build_json(out_dir: Path, run_date: str) -> dict:
+    """Assemble ``results.json`` from the files the Stata do-file writes."""
+    res = pd.read_csv(out_dir / "results.csv", na_values=["."], skipinitialspace=True, float_precision="round_trip").set_index("name")
+    ot = pd.read_csv(out_dir / "other_treatments.csv", na_values=["."], skipinitialspace=True, float_precision="round_trip")
+    rw = pd.read_csv(out_dir / "random_weights.csv", na_values=["."], skipinitialspace=True, float_precision="round_trip")
+    log = parse_log((out_dir / "stata.log").read_text(encoding="utf-8", errors="replace"))
+    cases = {}
+    for c in CASES:
+        n = c["name"]
+        r = res.loc[n]
+        entry = {**log[n], **{k: _num(r[k]) for k in res.columns}}
+        entry["random_weights"] = {
+            row["var"]: {k: _num(row[k]) for k in ("Coef", "SE", "tstat", "Correlation")}
+            for _, row in rw[rw["name"] == n].iterrows()
+        }
+        entry["other_treatments"] = [
+            {k: _num(row[k]) for k in ("nr_plus", "nr_minus", "sum_plus", "sum_minus", "tot_cells")}
+            for _, row in ot[ot["name"] == n].sort_values("j").iterrows()
+        ]
+        cases[n] = entry
+    return {
+        "source": "Stata command twowayfeweights from SSC (ssc install twowayfeweights)",
+        "generated": run_date,
+        "generator": "tests/reference/build_reference.py",
+        "cases": cases,
+    }
+
+
+def write_json(data: dict) -> None:
+    path = STATA_FIXTURES / "results.json"
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def run_stata(exe: str) -> None:
     do = WORK / "run_stata.do"
     do.write_text(stata_do(), encoding="utf-8")
     subprocess.run([exe, "/e", "do", str(do)], cwd=WORK, check=True)
     out = WORK / "stata_out"
-    dest = FIXTURES / "stata"
-    (dest / "weights").mkdir(parents=True, exist_ok=True)
-    for f in ("results.csv", "other_treatments.csv", "random_weights.csv"):
-        pd.read_csv(out / f, na_values=["."], skipinitialspace=True).to_csv(dest / f, index=False, float_format="%.17g")
-    (dest / "stata.log").write_text((out / "stata.log").read_text(encoding="utf-8", errors="replace"), encoding="utf-8")
+    write_json(build_json(out, date.today().isoformat()))
+    (STATA_FIXTURES / "weights").mkdir(parents=True, exist_ok=True)
     for c in CASES:
         p = out / f"{c['name']}_w.dta"
         if p.exists():
-            pd.read_stata(p).to_csv(dest / "weights" / f"{c['name']}.csv.gz", index=False, float_format="%.9g")
-
-
-# ---------------------------------------------------------------------- R
-
-
-def r_script() -> str:
-    q = lambda p: str(p).replace("\\", "/")  # noqa: E731
-    specs = []
-    for c in CASES:
-        if len(c["controls"]) > 100:  # the R package takes >30 min with 683 controls; skipped
-            continue
-        specs.append({k: c[k] for k in ("name", "data", "Y", "G", "T", "D", "D0", "type", "controls", "weights",
-                                         "other_treatments", "test_random_weights")})
-    (WORK / "cases.json").write_text(json.dumps(specs), encoding="utf-8")
-    return f"""
-suppressPackageStartupMessages({{library(TwoWayFEWeights); library(haven); library(jsonlite)}})
-setwd("{q(WORK)}")
-cases <- fromJSON("cases.json", simplifyVector = FALSE)
-data <- list(wagepan = as.data.frame(read_dta("wagepan.dta")), sim = as.data.frame(read_dta("sim.dta")), simcell = as.data.frame(read_dta("simcell.dta")),
-             gentzkow = as.data.frame(read_dta("gentzkow.dta")))
-res <- list(); rw <- list(); ot <- list()
-for (cs in cases) {{
-  nz <- function(x) if (length(x) == 0) NULL else unlist(x)
-  t0 <- Sys.time()
-  r <- tryCatch(twowayfeweights(data[[cs$data]], cs$Y, cs$G, cs$T, cs$D, type = cs$type,
-         D0 = if (is.null(cs$D0)) NULL else cs$D0, controls = nz(cs$controls),
-         weights = if (is.null(cs$weights)) NULL else data[[cs$data]][[cs$weights]],
-         other_treatments = nz(cs$other_treatments), test_random_weights = nz(cs$test_random_weights),
-         summary_measures = TRUE), error = function(e) {{ message(cs$name, ": ", conditionMessage(e)); NULL }})
-  el <- as.numeric(difftime(Sys.time(), t0, units = "secs"))
-  if (is.null(r)) {{ res[[length(res) + 1]] <- data.frame(name = cs$name, error = TRUE, seconds = el); next }}
-  g <- function(x) if (is.null(x)) NA_real_ else as.numeric(x)
-  res[[length(res) + 1]] <- data.frame(name = cs$name, error = FALSE, seconds = el, beta = g(r$beta),
-    nr_plus = g(r$nr_plus), nr_minus = g(r$nr_minus), sum_plus = g(r$sum_plus), sum_minus = g(r$sum_minus),
-    tot_cells = g(r$tot_cells), sensibility = g(r$sensibility), sensibility2 = g(r$sensibility2))
-  if (!is.null(r$mat)) {{
-    m <- as.data.frame(r$mat); m$var <- unlist(cs$test_random_weights); m$name <- cs$name
-    names(m)[1:4] <- c("Coef", "SE", "tstat", "Correlation"); rw[[length(rw) + 1]] <- m
-  }}
-}}
-dir.create("r_out", showWarnings = FALSE)
-write.csv(do.call(rbind, lapply(res, function(d) {{ for (k in c("beta","nr_plus","nr_minus","sum_plus","sum_minus","tot_cells","sensibility","sensibility2")) if (is.null(d[[k]])) d[[k]] <- NA; d }})),
-          "r_out/results.csv", row.names = FALSE)
-if (length(rw)) write.csv(do.call(rbind, rw), "r_out/random_weights.csv", row.names = FALSE)
-"""
-
-
-def run_r(exe: str) -> None:
-    script = WORK / "run_r.R"
-    script.write_text(r_script(), encoding="utf-8")
-    subprocess.run([exe, str(script)], cwd=WORK, check=True)
-    dest = FIXTURES / "r"
-    dest.mkdir(parents=True, exist_ok=True)
-    for f in ("results.csv", "random_weights.csv"):
-        p = WORK / "r_out" / f
-        if p.exists():
-            pd.read_csv(p).to_csv(dest / f, index=False, float_format="%.17g")
+            pd.read_stata(p).to_csv(STATA_FIXTURES / "weights" / f"{c['name']}.csv.gz", index=False, float_format="%.9g")
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stata", help="path to the Stata executable")
-    ap.add_argument("--r", help="path to Rscript")
+    ap.add_argument("--stata", required=True, help="path to the Stata executable")
     ap.add_argument("--gentzkow", type=Path, help="gentzkowetal_didtextbook.dta (first run only)")
     a = ap.parse_args()
     prepare_data(a.gentzkow)
-    if a.stata:
-        run_stata(a.stata)
-    if a.r:
-        (WORK / "gentzkow.dta").exists() or sys.exit("run --stata first (it builds work/gentzkow.dta)")
-        run_r(a.r)
+    run_stata(a.stata)

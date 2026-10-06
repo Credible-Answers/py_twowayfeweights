@@ -30,11 +30,14 @@ dependencies = ["numpy>=1.26", "pandas>=2.1", "scipy>=1.11"]
 
 [project.optional-dependencies]
 test = ["pytest>=7"]
+docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5,<10"]
 
 [project.urls]
-Homepage = "https://github.com/chaisemartinPackages/twowayfeweights"
-Source = "https://github.com/anzonyquispe/py_twowayfeweights"
-Issues = "https://github.com/anzonyquispe/py_twowayfeweights/issues"
+Homepage = "https://github.com/Credible-Answers/py_twowayfeweights"
+Documentation = "https://credible-answers.github.io/py_twowayfeweights/"
+Source = "https://github.com/Credible-Answers/py_twowayfeweights"
+Issues = "https://github.com/Credible-Answers/py_twowayfeweights/issues"
+Changelog = "https://github.com/Credible-Answers/py_twowayfeweights/blob/main/CHANGELOG.md"
 
 [tool.hatch.version]
 path = "src/twowayfeweights/__init__.py"
@@ -43,8 +46,8 @@ path = "src/twowayfeweights/__init__.py"
 packages = ["src/twowayfeweights"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "README.md", "LICENSE", "CHANGELOG.md"]
-exclude = ["tests/reference/*.dta", "tests/reference/stata_out", "tests/reference/r_out"]
+include = ["src", "tests", "docs", "mkdocs.yml", "README.md", "LICENSE", "CHANGELOG.md"]
+exclude = ["tests/reference/work"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
