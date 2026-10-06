@@ -20,9 +20,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # The package version comes from the release tag: v0.1.1 -> 0.1.1.
+      - name: Set version from the release tag
+        if: github.event_name == 'release'
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: python .github/set_version.py "$TAG"
       - run: python -m pip install build twine ".[test]"
       - run: python -m pytest -q
       - run: python -m build
+      - name: Check the built version matches the tag
+        if: github.event_name == 'release'
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: ls dist/ | grep -F "twowayfeweights-${TAG#v}"
       - run: python -m twine check --strict dist/*
       - uses: actions/upload-artifact@v4
         with:

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+* The package version is now taken from the GitHub release tag (`v0.1.1` -> `0.1.1`).
+* Documentation website: https://credible-answers.github.io/py_twowayfeweights/
+
 ## 0.1.0
 
 First release on PyPI.
